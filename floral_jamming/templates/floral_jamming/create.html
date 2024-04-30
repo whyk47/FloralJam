@@ -1,0 +1,23 @@
+{% extends 'floral_jamming/layout.html' %} 
+{% load static %} 
+
+{% block body %}
+    <h2 class="mb-3">Create Event</h2>
+    <form action="{% url 'floral_jamming:create' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {% for field in form %}
+            <div class="form-row mt-2">
+               {{ field.label_tag }}
+            </div>
+            <div class="form-row mb-2">
+                {{ field }}
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success">Save Event</button>
+    </form>
+{% endblock %} 
+
+{% block script %}
+{% endblock%}

@@ -1,6 +1,6 @@
 function App() {
     return (
-        <h1>Floral Jam Staff Page</h1>
+        <div></div>
     );
 }
 ReactDOM.render(<App />, document.getElementById('app'));

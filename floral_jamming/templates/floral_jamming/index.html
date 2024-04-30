@@ -2,10 +2,40 @@
 {% load static %} 
 
 {% block body %}
-    <div>Hello!</div>
-    <div id="app"></div>
+    {% if is_staff %}
+        <h1>Floral Jam Staff Page</h1>
+        <form action="{% url 'floral_jamming:create' %}">
+            <button class='btn btn-success my-2' type="submit">Create Event</button>
+        </form>
+    {% else %}
+        <h1 class="my-3">Upcoming Events</h1>
+    {% endif %}
+
+    {% for event in events %}
+        <div class="card my-1">
+            <div class="card-body">
+                {% if is_staff %}
+                    {% url 'floral_jamming:details' event.id as url %}
+                {% else %}
+                    {% url 'floral_jamming:details' event.id as url %}
+                {% endif %}
+                <a href="{{ url }}">
+                    <h3 class="card-title text-dark">{{ event.title }}</h3>
+                </a>
+                <div class="card-text">
+                    <div>{{ event.time }}</div>  
+                    {% if is_staff %}
+                        <div>Participants: {{ event.num_attendees }}/{{ event.capacity }}</div>
+                    {% else %}
+                        <div>Slots remaining: {{ event.remaining_slots }}/{{ event.capacity }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <h3 class="my-2">No events yet</h3>
+    {% endfor %}
 {% endblock %} 
 
 {% block script %}
-    <script type="text/babel" src="{% static 'floral_jamming/index.js' %}"></script>
 {% endblock%}

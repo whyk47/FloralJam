@@ -4,6 +4,6 @@ from .models import *
 # Register your models here.
 admin.site.register([
     User,
-    Session,
+    Event,
     Attendee,
 ])

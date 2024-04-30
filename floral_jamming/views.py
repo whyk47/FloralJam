@@ -3,21 +3,47 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
+from django.contrib.admin.views.decorators import staff_member_required
+
 from .models import *
 from .forms import *
 
-GUEST = User.objects.get(username="guest")
+@staff_member_required
+def create(request):
+     if request.method == "POST":
+          event_form = EventForm(request.POST)
+          if event_form.is_valid():
+               event = event_form.save(commit=False)
+               event.creator = request.user
+               event.save()
+               return HttpResponseRedirect(reverse("floral_jamming:index"))
+          else:
+               return render(request, "floral_jamming/create.html", {
+                    "form": event_form
+               })
+     else:
+          return render(request, "floral_jamming/create.html", {
+               "form": EventForm()
+          })
 
 # Create your views here.
 def index(request):
      user = request.user
      if not user.is_anonymous and user.is_staff:
-          sessions = Session.objects.filter(creator__username=user.username)
-          return render(request, 'floral_jamming/staff.html', {
-               'user': user,
-               'sessions': sessions
-          })
-     return render(request, 'floral_jamming/index.html')
+          events = Event.objects.filter(creator__username=user.username)
+     else:
+          events = Event.objects.all()
+     return render(request, 'floral_jamming/index.html', {
+          'user': user,
+          'is_staff': user.is_staff,
+          'events': events
+     })
+
+def details(request, event_id: int):
+     event = Event.objects.get(id=event_id)
+     return render(request, 'floral_jamming/details.html', {
+          'event': event
+     })
 
 def login_view(request):
      if request.method == "POST":
@@ -25,7 +51,6 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
-        print(username, password)
         user = authenticate(request, username=username, password=password)
 
         # Check if authentication successful

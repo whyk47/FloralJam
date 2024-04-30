@@ -3,24 +3,26 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 
 
-
 # Create your models here.
 class User(AbstractUser):
     pass
 
-class Session(models.Model):
+class Event(models.Model):
     title = models.CharField(max_length=100)
     price = models.IntegerField(validators=[MinValueValidator(0)], default=80)
     time = models.DateTimeField()
     location = models.CharField(max_length=300)
     description = models.CharField(max_length=3000)
     capacity = models.IntegerField(validators=[MinValueValidator(0)], default=10)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sessions")
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
 
     def num_attendees(self):
         return self.attendees.all().count()
+    
+    def remaining_slots(self):
+        return self.capacity - self.num_attendees()
 
 class Attendee(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees", default=None)
     email = models.EmailField()
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="attendees")
+    session = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
