@@ -1,0 +1,11 @@
+{% extends 'floral_jamming/layout.html' %} 
+{% load static %} 
+
+{% block body %}
+    <div>Hello!</div>
+    <div id="app"></div>
+{% endblock %} 
+
+{% block script %}
+    <script type="text/babel" src="{% static 'floral_jamming/index.js' %}"></script>
+{% endblock%}
