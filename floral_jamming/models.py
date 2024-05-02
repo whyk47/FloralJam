@@ -25,4 +25,6 @@ class Event(models.Model):
 class Attendee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees", default=None)
     email = models.EmailField()
-    session = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
+    first_name = models.CharField(max_length=100, default="")
+    last_name = models.CharField(max_length=100, default="")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")

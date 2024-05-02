@@ -6,8 +6,8 @@
 <div class="mx-3 text-danger">{{ message }}</div>
 {% endif %}
 
-<form action="{% url 'floral_jamming:login' %}" method="post" class="m-3">
-  {% csrf_token %}
+<form action="{% url 'floral_jamming:login' event_id %}" method="post" class="m-3">
+    {% csrf_token %}
         <div class="form-group">
             <input autofocus class="form-control" type="text" name="username" placeholder="Username" required>
             <input class="form-control mt-1 mb-3" type="password" name="password" placeholder="Password" required>
@@ -17,7 +17,7 @@
 
 <div class="m-3">
   Don't have an account? 
-  <a href="{% url 'floral_jamming:register' %}">Register here.</a>
+  <a href="{% url 'floral_jamming:register' event_id %}">Register here.</a>
 </div>
 
 {% endblock %}

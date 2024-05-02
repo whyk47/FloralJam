@@ -2,6 +2,19 @@ from django import forms
 from .models import *
 
 
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'password']
+        widgets = {
+            'password': forms.PasswordInput(attrs={'placeholder': 'Password'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email Address'}),
+            'username': forms.TextInput(attrs={'placeholder': 'Username'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Last Name'}),
+        }
+    confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
+
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
@@ -15,4 +28,15 @@ class EventForm(forms.ModelForm):
         labels = {
             'price': 'Price ($)',
         }
+
+class AttendeeForm(forms.ModelForm):
+    class Meta:
+        model = Attendee
+        fields = ['email', 'first_name', 'last_name']
+        widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'Email Address'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Last Name'}),
+        }
+    
         

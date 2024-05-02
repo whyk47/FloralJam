@@ -7,6 +7,31 @@
     <div>{{ event.location }}</div>
     <div>${{ event.price }}</div>
     <div>{{ event.remaining_slots }}/{{ event.capacity }} slots left</div>
+    {% if user.is_staff %}
+        <h3>Attendees:</h3>
+        <div>
+            {% for attendee in event.attendees.all %}
+                <div class="card p-2">
+                    <div class="card-title">{{ attendee.first_name }} {{ attendee.last_name }}</div>
+                    <div class="card-text">{{ attendee.email }}</div> 
+                </div>
+            {% empty %}
+                <h5>No Attendees Yet</h5>
+            {% endfor %}
+        </div>
+    {% elif user.is_authenticated %}
+        <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
+            <button class='btn btn-success my-2' type="submit">Register</button>
+        </form>
+    {% else %}
+        <a href="{% url 'floral_jamming:login' event.id %}">
+            <button class='btn btn-success my-2' type="submit">Log In to Register</button>
+        </a>
+        <a href="{% url 'floral_jamming:sign_up' event.id %}">
+            <button class='btn btn-secondary my-2'>Register as Guest</button>
+        </a>
+        
+    {% endif %}
 
 {% endblock %} 
 

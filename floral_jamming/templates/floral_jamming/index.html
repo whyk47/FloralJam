@@ -4,9 +4,9 @@
 {% block body %}
     {% if is_staff %}
         <h1>Floral Jam Staff Page</h1>
-        <form action="{% url 'floral_jamming:create' %}">
-            <button class='btn btn-success my-2' type="submit">Create Event</button>
-        </form>
+        <a href="{% url 'floral_jamming:create' %}">
+            <button class='btn btn-success my-2'>Create Event</button>
+        </a>
     {% else %}
         <h1 class="my-3">Upcoming Events</h1>
     {% endif %}
