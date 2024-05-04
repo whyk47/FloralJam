@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+import uuid
 
 
 # Create your models here.
@@ -17,14 +18,16 @@ class Event(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
 
     def num_attendees(self):
-        return self.attendees.all().count()
+        return sum([attendee.pax for attendee in self.attendees.all()])
     
     def remaining_slots(self):
         return self.capacity - self.num_attendees()
 
 class Attendee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees", default=None)
+    guest_id = models.UUIDField(null=True)
     email = models.EmailField()
     first_name = models.CharField(max_length=100, default="")
     last_name = models.CharField(max_length=100, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
+    pax = models.IntegerField(validators=[MinValueValidator(1)])

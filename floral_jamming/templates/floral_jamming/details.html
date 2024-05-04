@@ -2,6 +2,11 @@
 {% load static %} 
 
 {% block body %}
+    {% if attending %}
+        <div class="card bg-success text-white p-2 m-2">
+            <div class="card-text">You've signed up for this event! <span>&#40;</span>{{ attendee.pax }} pax<span>&#41;</span></div>
+        </div>
+    {% endif %}
     <h1>{{ event.title }}</h1>
     <div>{{ event.time }}</div>
     <div>{{ event.location }}</div>
@@ -20,20 +25,68 @@
             {% endfor %}
         </div>
     {% elif user.is_authenticated %}
-        <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
-            <button class='btn btn-success my-2' type="submit">Register</button>
-        </form>
+        {% if attendee %}
+            <a href="{% url 'floral_jamming:cancel_sign_up' event.id %}">
+                <button class='btn btn-danger'>
+                    Cancel Registration
+                </button>
+            </a>
+        {% else %}
+            <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
+                {% csrf_token %}
+                <input class="form-control mt-2" type="number" name="pax" placeholder="Number of pax">
+                <button class='btn btn-success my-2'>Register</button>
+            </form>
+        {% endif %}
     {% else %}
         <a href="{% url 'floral_jamming:login' event.id %}">
             <button class='btn btn-success my-2' type="submit">Log In to Register</button>
         </a>
         <a href="{% url 'floral_jamming:sign_up' event.id %}">
             <button class='btn btn-secondary my-2'>Register as Guest</button>
-        </a>
+        </a> 
+        <!-- Button trigger modal -->
+        {% comment %} <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#guestSignUpModal">
+            Register as Guest
+        </button> {% endcomment %}
+
+        <!-- Modal -->
+        <div class="modal fade" id="guestSignUpModal" tabindex="-1" role="dialog" aria-labelledby="guestSignUpModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="guestSignUpModalLabel">Register As Guest</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% if message %}
+                            <div class="text-danger">{{ message }}</div>
+                        {% endif %}
+                        <form >
+                            {% csrf_token %}
+                            <div class="form-group m-2">
+                                {% for field in form %}
+                                    <div class="form-row my-2">
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success">Register</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         
     {% endif %}
 
 {% endblock %} 
 
 {% block script %}
+        {% comment %} <script src="{% static 'floral_jamming/details.js' %}"></script> {% endcomment %}
 {% endblock%}
