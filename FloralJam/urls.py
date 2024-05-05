@@ -20,4 +20,5 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('floral_jamming.urls')),
+    path("convert/", include("guest_user.urls")),
 ]

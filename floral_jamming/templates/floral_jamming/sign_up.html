@@ -9,7 +9,6 @@
     <form action="{% url 'floral_jamming:details' event.id %}" method="post">
         {% csrf_token %}
         <div class="form-group m-2">
-            <input id="guest_id" name='guest_id' type='hidden'></input>
             {% for field in form %}
                 <div class="form-row my-2">
                     {{ field }}
@@ -21,5 +20,4 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'floral_jamming/details.js' %}"></script>
 {% endblock %}

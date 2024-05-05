@@ -38,6 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "guest_user",
+]
+
+AUTHENTICATION_BACKENDS = [
+   "django.contrib.auth.backends.ModelBackend",
+   # it should be the last entry to prevent unauthorized access
+   "guest_user.backends.GuestBackend",
 ]
 
 MIDDLEWARE = [
@@ -82,6 +89,7 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'floral_jamming.User'
+GUEST_USER_MODEL = 'guest_user.Guest'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

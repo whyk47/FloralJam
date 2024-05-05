@@ -2,7 +2,7 @@
 {% load static %} 
 
 {% block body %}
-    {% if is_staff %}
+    {% if user.is_staff %}
         <h1>Floral Jam Staff Page</h1>
         <a href="{% url 'floral_jamming:create' %}">
             <button class='btn btn-success my-2'>Create Event</button>
@@ -14,7 +14,7 @@
     {% for event in events %}
         <div class="card my-1">
             <div class="card-body">
-                {% if is_staff %}
+                {% if user.is_staff %}
                     {% url 'floral_jamming:details' event.id as url %}
                 {% else %}
                     {% url 'floral_jamming:details' event.id as url %}
@@ -24,7 +24,7 @@
                 </a>
                 <div class="card-text">
                     <div>{{ event.time }}</div>  
-                    {% if is_staff %}
+                    {% if user.is_staff %}
                         <div>Participants: {{ event.num_attendees }}/{{ event.capacity }}</div>
                     {% else %}
                         <div>Slots remaining: {{ event.remaining_slots }}/{{ event.capacity }}</div>

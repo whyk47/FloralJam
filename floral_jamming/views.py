@@ -5,8 +5,13 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
+from guest_user.decorators import allow_guest_user
+from guest_user.functions import is_guest_user
+from django.db.models import Q
 from datetime import datetime
+from guest_user.models import Guest
 
+from .util import *
 from .models import *
 from .forms import *
 
@@ -30,6 +35,7 @@ def create(request):
                "form": EventForm()
           })
 
+@allow_guest_user
 def index(request):
      user = request.user
      if user.is_staff:
@@ -37,57 +43,63 @@ def index(request):
      else:
           events = Event.objects.filter(time__gte=datetime.now()).order_by('time')
      return render(request, 'floral_jamming/index.html', {
-          'user': user,
-          'is_staff': user.is_staff,
+          # 'user': user,
+          # 'is_staff': user.is_staff,
           'events': events
      })
 
-def sign_up(request, event_id: int):
-     event = Event.objects.get(id=event_id)
-     if request.user.is_authenticated:
-          user = User.objects.get(id=request.user.id)
-          attendee = Attendee(user=user, event=event, email=user.email, first_name=user.first_name, last_name=user.last_name)
-          attendee.save()
-          # TODO handle user sign up
-          return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
-     else:
-          if request.method == "POST":
-               attendee_form = AttendeeForm(request.POST) 
-               if attendee_form.is_valid():
-                    attendee = attendee_form.save(commit=False)
-                    attendee.event = event
-                    attendee.user = GUEST
-                    attendee.save()
-                    return HttpResponse('TODO')
-               else:
-                    return render(request, 'floral_jamming/sign_up.html', {
-                         'event': event,
-                         'form': attendee_form,
-                         'message': attendee_form.errors
-                    })
-          else:
-               return render(request, 'floral_jamming/sign_up.html', {
-                    'event': event,
-                    'form': AttendeeForm(),
-               })
+# ! Not in use
+# @allow_guest_user
+# def sign_up(request, event_id: int):
+#      event = Event.objects.get(id=event_id)
+#      if request.user.is_authenticated:
+#           user = User.objects.get(id=request.user.id)
+#           attendee = Attendee(user=user, event=event, email=user.email, first_name=user.first_name, last_name=user.last_name)
+#           attendee.save()
+#           return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+#      else:
+#           if request.method == "POST":
+#                attendee_form = AttendeeForm(request.POST) 
+#                if attendee_form.is_valid():
+#                     attendee = attendee_form.save(commit=False)
+#                     attendee.event = event
+#                     attendee.user = GUEST
+#                     attendee.save()
+#                     return HttpResponse('TODO')
+#                else:
+#                     return render(request, 'floral_jamming/sign_up.html', {
+#                          'event': event,
+#                          'form': attendee_form,
+#                          'message': attendee_form.errors
+#                     })
+#           else:
+#                return render(request, 'floral_jamming/sign_up.html', {
+#                     'event': event,
+#                     'form': AttendeeForm(),
+#                })
           
+@allow_guest_user
 def cancel_sign_up(request, event_id: int):
      event = Event.objects.get(id=event_id)
-     if request.user.is_authenticated:
+     if is_authenticated_user(request.user):
           user = User.objects.get(id=request.user.id)
-          attendee = Attendee.objects.get(event=event, user=user)
+          attendee = user.attentees.get(event=event)
+          attendee.delete()
+     elif is_guest_user(request.user):
+          guest = Guest.objects.get(id=request.user.id)
+          attendee = guest.attendees.get(event=event)
           attendee.delete()
      return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
 
+@allow_guest_user
 def details(request, event_id: int):
      event = Event.objects.get(id=event_id)
-     user = User.objects.get(id=request.user.id) if request.user.is_authenticated else None
-     attendee = None
+     user = User.objects.get(id=request.user.id) if is_authenticated_user(request.user) else None
+     guest = Guest.objects.get(user_id=request.user.id) if is_guest_user(request.user) else None
      if request.method == "POST":
           if user:
-               attendee, created = Attendee.objects.update_or_create(
+               attendee, created = user.attendees.update_or_create(
                     event=event, 
-                    user=user,
                     defaults={
                          'pax': int(request.POST['pax']),
                          'email': user.email,
@@ -95,16 +107,13 @@ def details(request, event_id: int):
                          'last_name': user.last_name
                     }
                )
-          else:
+          elif guest:
                form = AttendeeForm(request.POST)
-               assert 'guest_id' in request.POST
-               guest_id = request.POST['guest_id']
                if form.is_valid():
-                    attendee, created = Attendee.objects.update_or_create(
+                    data = form.cleaned_data
+                    attendee, created = guest.attendees.update_or_create(
                          event=event, 
-                         guest_id=guest_id, 
-                         user=GUEST, 
-                         defaults={**form.cleaned_data}
+                         defaults={**data}
                     )
                else:
                     return render(request, 'floral_jamming/sign_up.html', {
@@ -112,6 +121,11 @@ def details(request, event_id: int):
                          'form': form,
                          'message': form.errors
                     })
+          else:
+               raise Exception("Should not reach here")
+
+     else:
+          attendee = event.attendees.filter(Q(guest=guest, user=user) | Q(user=user, guest=None) | Q(guest=guest, user=None)).first()
      
      return render(request, 'floral_jamming/details.html', {
           'event': event,
@@ -119,40 +133,45 @@ def details(request, event_id: int):
           'form': AttendeeForm(),
      })
 
+@allow_guest_user
 def login_view(request, event_id: int = 0):
-     if request.user.is_authenticated:
+     if is_authenticated_user(request.user):
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      if request.method == "POST":
+          # Attempt to sign user in
+          username = request.POST["username"]
+          password = request.POST["password"]
+          user = authenticate(request, username=username, password=password)
 
-        # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-
-        # Check if authentication successful
-        if user is not None:
-            login(request, user)
-            if event_id > 0:
-                return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
-            return HttpResponseRedirect(reverse("floral_jamming:index"))
-        else:
-            return render(request, "floral_jamming/login.html", {
-                "message": "Invalid username and/or password.",
-                "event_id": event_id
-            })
+          # Check if authentication successful
+          if user is not None:
+               guest = request.user
+               login(request, user)
+               if is_guest_user(guest):
+                    convert_guest(guest, user)
+               if event_id > 0:
+                    return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+               return HttpResponseRedirect(reverse("floral_jamming:index"))
+          else:
+               return render(request, "floral_jamming/login.html", {
+                    "message": "Invalid username and/or password.",
+                    "event_id": event_id
+               })
      else:
           return render(request, "floral_jamming/login.html", {
                "event_id": event_id
           })
      
 
+@allow_guest_user
 def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("floral_jamming:index"))
+     logout(request)
+     return HttpResponseRedirect(reverse("floral_jamming:index"))
 
 
+@allow_guest_user
 def register(request, event_id: int = 0):
-     if request.user.is_authenticated:
+     if is_authenticated_user(request.user):
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      if request.method == "POST":
           form = UserForm(request.POST)
@@ -178,7 +197,10 @@ def register(request, event_id: int = 0):
                          "message": "Username already taken.",
                          "event_id": event_id
                     })
+               guest = request.user
                login(request, user)
+               if is_guest_user(guest):
+                    convert_guest(guest, user)
                if event_id > 0:
                     return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
                return HttpResponseRedirect(reverse("floral_jamming:index"))

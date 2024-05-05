@@ -1,5 +1,6 @@
 {% extends 'floral_jamming/layout.html' %} 
 {% load static %} 
+{% load templates %}
 
 {% block body %}
     {% if attending %}
@@ -24,7 +25,7 @@
                 <h5>No Attendees Yet</h5>
             {% endfor %}
         </div>
-    {% elif user.is_authenticated %}
+    {% elif user|is_authenticated_user %}
         {% if attendee %}
             <a href="{% url 'floral_jamming:cancel_sign_up' event.id %}">
                 <button class='btn btn-danger'>
@@ -32,7 +33,7 @@
                 </button>
             </a>
         {% else %}
-            <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
+            <form action="{% url 'floral_jamming:details' event.id %}" method="post">
                 {% csrf_token %}
                 <input class="form-control mt-2" type="number" name="pax" placeholder="Number of pax">
                 <button class='btn btn-success my-2'>Register</button>
@@ -42,7 +43,7 @@
         <a href="{% url 'floral_jamming:login' event.id %}">
             <button class='btn btn-success my-2' type="submit">Log In to Register</button>
         </a>
-        <a href="{% url 'floral_jamming:sign_up' event.id %}">
+        <a href="{% url 'floral_jamming:details' event.id %}">
             <button class='btn btn-secondary my-2'>Register as Guest</button>
         </a> 
         <!-- Button trigger modal -->
@@ -88,5 +89,4 @@
 {% endblock %} 
 
 {% block script %}
-        {% comment %} <script src="{% static 'floral_jamming/details.js' %}"></script> {% endcomment %}
 {% endblock%}
