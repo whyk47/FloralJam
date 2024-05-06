@@ -3,7 +3,7 @@
 {% load templates %}
 
 {% block body %}
-    {% if attending %}
+    {% if attendee %}
         <div class="card bg-success text-white p-2 m-2">
             <div class="card-text">You've signed up for this event! <span>&#40;</span>{{ attendee.pax }} pax<span>&#41;</span></div>
         </div>
@@ -27,25 +27,32 @@
         </div>
     {% elif user|is_authenticated_user %}
         {% if attendee %}
-            <a href="{% url 'floral_jamming:cancel_sign_up' event.id %}">
-                <button class='btn btn-danger'>
+            <form action="{% url 'floral_jamming:sign_up' event.id %}" method="delete">
+                {% csrf_token %}
+                <button class='btn btn-danger' type="submit">
                     Cancel Registration
                 </button>
-            </a>
+            </form>
         {% else %}
-            <form action="{% url 'floral_jamming:details' event.id %}" method="post">
+            <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
                 {% csrf_token %}
-                <input class="form-control mt-2" type="number" name="pax" placeholder="Number of pax">
-                <button class='btn btn-success my-2'>Register</button>
+                <input class="form-control mt-2" type="number" name="pax" placeholder="Number of pax" max={{ event.remaining_slots }}>
+                <button class='btn btn-success my-2' type="submit">Register</button>
             </form>
         {% endif %}
     {% else %}
-        <a href="{% url 'floral_jamming:login' event.id %}">
-            <button class='btn btn-success my-2' type="submit">Log In to Register</button>
-        </a>
-        <a href="{% url 'floral_jamming:details' event.id %}">
-            <button class='btn btn-secondary my-2'>Register as Guest</button>
-        </a> 
+        {% if attendee %}
+            <a href="{% url 'floral_jamming:sign_up' event.id %}">
+                <button class='btn btn-secondary my-2'>Edit Registration</button>
+            </a> 
+        {% else %}
+            <a href="{% url 'floral_jamming:login' event.id %}">
+                <button class='btn btn-success my-2'>Log In to Register</button>
+            </a>
+            <a href="{% url 'floral_jamming:sign_up' event.id %}">
+                <button class='btn btn-secondary my-2'>Register as Guest</button>
+            </a> 
+        {% endif %}
         <!-- Button trigger modal -->
         {% comment %} <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#guestSignUpModal">
             Register as Guest

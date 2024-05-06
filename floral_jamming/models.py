@@ -13,10 +13,10 @@ class Event(models.Model):
     capacity = models.IntegerField(validators=[MinValueValidator(0)], default=10)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
 
-    def num_attendees(self):
+    def num_attendees(self) -> int:
         return sum([attendee.pax for attendee in self.attendees.all()])
     
-    def remaining_slots(self):
+    def remaining_slots(self) -> int:
         return self.capacity - self.num_attendees()
 
 class Attendee(models.Model):

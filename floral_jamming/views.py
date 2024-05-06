@@ -1,34 +1,27 @@
-import json
-from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 from guest_user.decorators import allow_guest_user
-from guest_user.functions import is_guest_user
-from django.db.models import Q
-from datetime import datetime
-from guest_user.models import Guest
 
-from .util import *
-from .models import *
 from .forms import *
+from .services.auth_service.auth_service import *
+from .services.event_service.event_service import *
 
-GUEST = User.objects.get(username="guest")
+auth_service = Auth_Service()
+event_service = Event_Service()
 
 @staff_member_required
-def create(request):
+def create(request: HttpRequest) -> HttpResponse | HttpResponseRedirect:
      if request.method == "POST":
-          event_form = EventForm(request.POST)
-          if event_form.is_valid():
-               event = event_form.save(commit=False)
-               event.creator = request.user
-               event.save()
-               return HttpResponseRedirect(reverse("floral_jamming:index"))
-          else:
+          form = EventForm(request.POST)
+          try:
+               event = event_service.create_event(user=request.user, form=form)
+               return HttpResponseRedirect(reverse("floral_jamming:details", args=[event.id]))
+          except Invalid_Form as e:
                return render(request, "floral_jamming/create.html", {
-                    "form": event_form
+                    "message": e.message,
+                    "form": form,
                })
      else:
           return render(request, "floral_jamming/create.html", {
@@ -36,96 +29,43 @@ def create(request):
           })
 
 @allow_guest_user
-def index(request):
-     user = request.user
-     if user.is_staff:
-          events = Event.objects.filter(creator__username=user.username, time__gte=datetime.now()).order_by('time')
-     else:
-          events = Event.objects.filter(time__gte=datetime.now()).order_by('time')
+def index(request: HttpRequest) -> HttpResponse:
      return render(request, 'floral_jamming/index.html', {
-          # 'user': user,
-          # 'is_staff': user.is_staff,
-          'events': events
+          'events': event_service.get_events(request.user),
      })
 
-# ! Not in use
-# @allow_guest_user
-# def sign_up(request, event_id: int):
-#      event = Event.objects.get(id=event_id)
-#      if request.user.is_authenticated:
-#           user = User.objects.get(id=request.user.id)
-#           attendee = Attendee(user=user, event=event, email=user.email, first_name=user.first_name, last_name=user.last_name)
-#           attendee.save()
-#           return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
-#      else:
-#           if request.method == "POST":
-#                attendee_form = AttendeeForm(request.POST) 
-#                if attendee_form.is_valid():
-#                     attendee = attendee_form.save(commit=False)
-#                     attendee.event = event
-#                     attendee.user = GUEST
-#                     attendee.save()
-#                     return HttpResponse('TODO')
-#                else:
-#                     return render(request, 'floral_jamming/sign_up.html', {
-#                          'event': event,
-#                          'form': attendee_form,
-#                          'message': attendee_form.errors
-#                     })
-#           else:
-#                return render(request, 'floral_jamming/sign_up.html', {
-#                     'event': event,
-#                     'form': AttendeeForm(),
-#                })
-          
 @allow_guest_user
-def cancel_sign_up(request, event_id: int):
-     event = Event.objects.get(id=event_id)
-     if is_authenticated_user(request.user):
-          user = User.objects.get(id=request.user.id)
-          attendee = user.attentees.get(event=event)
-          attendee.delete()
-     elif is_guest_user(request.user):
-          guest = Guest.objects.get(id=request.user.id)
-          attendee = guest.attendees.get(event=event)
-          attendee.delete()
-     return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
-
-@allow_guest_user
-def details(request, event_id: int):
-     event = Event.objects.get(id=event_id)
-     user = User.objects.get(id=request.user.id) if is_authenticated_user(request.user) else None
-     guest = Guest.objects.get(user_id=request.user.id) if is_guest_user(request.user) else None
+def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseRedirect:
+     event = event_service.get_event_by_id(event_id)
      if request.method == "POST":
-          if user:
-               attendee, created = user.attendees.update_or_create(
-                    event=event, 
-                    defaults={
-                         'pax': int(request.POST['pax']),
-                         'email': user.email,
-                         'first_name': user.first_name,
-                         'last_name': user.last_name
-                    }
-               )
-          elif guest:
+          if auth_service.is_guest_user(request.user):
                form = AttendeeForm(request.POST)
-               if form.is_valid():
-                    data = form.cleaned_data
-                    attendee, created = guest.attendees.update_or_create(
-                         event=event, 
-                         defaults={**data}
-                    )
-               else:
+               try:
+                    attendee = event_service.create_or_update_guest_attendee(user=request.user, event=event, form=form)
+               except Invalid_Form as e:
                     return render(request, 'floral_jamming/sign_up.html', {
                          'event': event,
                          'form': form,
-                         'message': form.errors
+                         'message': e.message
                     })
+          elif auth_service.is_authenticated_user(request.user):
+               attendee = event_service.create_or_update_user_attendee(user=request.user, event=event, pax=int(request.POST['pax']))
           else:
-               raise Exception("Should not reach here")
+               return HttpResponseRedirect(reverse("floral_jamming:login", args=[event_id]))
+          return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+     elif request.method == "DELETE":
+          event_service.delete_attendee(user=request.user, event=event)
+          return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+     return render(request, 'floral_jamming/sign_up.html', {
+          'attendee': attendee,
+          'event': event,
+          'form': AttendeeForm(instance=attendee),
+     })
 
-     else:
-          attendee = event.attendees.filter(Q(guest=guest, user=user) | Q(user=user, guest=None) | Q(guest=guest, user=None)).first()
+@allow_guest_user
+def details(request: HttpRequest, event_id: int) -> HttpResponse:
+     event = Event.objects.get(id=event_id)
+     attendee = event_service.get_attendee(user=request.user, event=event)
      
      return render(request, 'floral_jamming/details.html', {
           'event': event,
@@ -134,27 +74,18 @@ def details(request, event_id: int):
      })
 
 @allow_guest_user
-def login_view(request, event_id: int = 0):
-     if is_authenticated_user(request.user):
+def login_view(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResponseRedirect:
+     if auth_service.is_authenticated_user(request.user):
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      if request.method == "POST":
-          # Attempt to sign user in
-          username = request.POST["username"]
-          password = request.POST["password"]
-          user = authenticate(request, username=username, password=password)
-
-          # Check if authentication successful
-          if user is not None:
-               guest = request.user
-               login(request, user)
-               if is_guest_user(guest):
-                    convert_guest(guest, user)
+          try:
+               auth_service.login(request)
                if event_id > 0:
                     return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
                return HttpResponseRedirect(reverse("floral_jamming:index"))
-          else:
+          except Invaild_Credentials as e:
                return render(request, "floral_jamming/login.html", {
-                    "message": "Invalid username and/or password.",
+                    "message": e.message,
                     "event_id": event_id
                })
      else:
@@ -164,49 +95,26 @@ def login_view(request, event_id: int = 0):
      
 
 @allow_guest_user
-def logout_view(request):
-     logout(request)
+def logout_view(request: HttpRequest) -> HttpResponseRedirect:
+     if not auth_service.is_authenticated_user(request.user):
+          return HttpResponseRedirect(reverse("floral_jamming:index"))
+     auth_service.logout(request)
      return HttpResponseRedirect(reverse("floral_jamming:index"))
 
 
 @allow_guest_user
-def register(request, event_id: int = 0):
-     if is_authenticated_user(request.user):
+def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResponseRedirect:
+     if auth_service.is_authenticated_user(request.user):
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      if request.method == "POST":
-          form = UserForm(request.POST)
-          if form.is_valid():
-               data = form.cleaned_data
-
-               # Ensure password matches confirmation
-               password = data["password"]
-               confirmation = request.POST["confirmation"]
-               if password != confirmation:
-                    return render(request, "floral_jamming/register.html", {
-                         "message": "Passwords must match.",
-                         "event_id": event_id
-                    })
-
-               # Attempt to create new user
-               try:
-                    data.pop('confirmation')
-                    user = User.objects.create_user(**data)
-                    user.save()
-               except IntegrityError:
-                    return render(request, "floral_jamming/register.html", {
-                         "message": "Username already taken.",
-                         "event_id": event_id
-                    })
-               guest = request.user
-               login(request, user)
-               if is_guest_user(guest):
-                    convert_guest(guest, user)
+          try:
+               auth_service.register(request)
                if event_id > 0:
                     return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
                return HttpResponseRedirect(reverse("floral_jamming:index"))
-          else:
+          except Invalid_Form as e:
                return render(request, "floral_jamming/register.html", {
-                         "message": form.errors,
+                         "message": e.message,
                          "event_id": event_id
                     })
      else:

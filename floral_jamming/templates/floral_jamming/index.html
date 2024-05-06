@@ -14,12 +14,7 @@
     {% for event in events %}
         <div class="card my-1">
             <div class="card-body">
-                {% if user.is_staff %}
-                    {% url 'floral_jamming:details' event.id as url %}
-                {% else %}
-                    {% url 'floral_jamming:details' event.id as url %}
-                {% endif %}
-                <a href="{{ url }}">
+                <a href="{% url 'floral_jamming:details' event.id %}">
                     <h3 class="card-title text-dark">{{ event.title }}</h3>
                 </a>
                 <div class="card-text">

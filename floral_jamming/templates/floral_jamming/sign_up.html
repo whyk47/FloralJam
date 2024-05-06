@@ -2,11 +2,17 @@
 {% load static %} 
 
 {% block body %}
-    <h2 class="mb-4">Register as Guest</h2>
+    <h2 class="mb-4">
+        {% if attendee %}
+            Edit Registration
+        {% else %}
+            Register as Guest
+        {% endif %}
+    </h2>
     {% if message %}
         <div class="text-danger">{{ message }}</div>
     {% endif %}
-    <form action="{% url 'floral_jamming:details' event.id %}" method="post">
+    <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
         {% csrf_token %}
         <div class="form-group m-2">
             {% for field in form %}
@@ -15,8 +21,25 @@
                 </div>
             {% endfor %}
         </div>
-        <button class='btn btn-success my-2' type="submit">Register</button>
+        <button class='btn btn-success my-2' type="submit">
+            {% if attendee %}
+                Update Registration
+            {% else %}
+                Register
+            {% endif %}
+        </button>
     </form>
+    {% if attendee %}
+        <form action="{% url 'floral_jamming:sign_up' event.id %}" method="delete">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Unregister</button>
+        </form>
+    {% else %}
+        <a href="{% url 'floral_jamming:details' event.id %}">
+            <button class="btn btn-danger" type="submit">Cancel Registration</button>
+        </a>
+    {% endif %}
+
 {% endblock %}
 
 {% block script %}
