@@ -9,3 +9,4 @@ class Invalid_Form(Exception):
 
 class Invalid_User_Type(Exception):
     pass
+

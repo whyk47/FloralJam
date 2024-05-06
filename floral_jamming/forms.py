@@ -32,12 +32,19 @@ class EventForm(forms.ModelForm):
 class AttendeeForm(forms.ModelForm):
     class Meta:
         model = Attendee
-        fields = ['email', 'first_name', 'last_name', 'pax']
+        fields = ['pax']
+        widgets = {
+            'pax': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Number of Pax'}),
+        }
+
+class GuestForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
         widgets = {
             'email': forms.EmailInput(attrs={'placeholder': 'Email Address'}),
             'first_name': forms.TextInput(attrs={'placeholder': 'First Name'}),
             'last_name': forms.TextInput(attrs={'placeholder': 'Last Name'}),
-            'pax': forms.NumberInput(attrs={'min': 1, 'placeholder': 'Number of Pax'}),
-        }
+        }    
     
         

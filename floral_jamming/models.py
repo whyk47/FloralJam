@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from .custom_user import User
-from guest_user.models import Guest
 
 
 class Event(models.Model):
@@ -21,9 +20,5 @@ class Event(models.Model):
 
 class Attendee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees", null=True)
-    guest = models.ForeignKey(Guest, on_delete=models.CASCADE, related_name="attendees", null=True)
-    email = models.EmailField()
-    first_name = models.CharField(max_length=100, default="")
-    last_name = models.CharField(max_length=100, default="")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
     pax = models.IntegerField(validators=[MinValueValidator(1)])

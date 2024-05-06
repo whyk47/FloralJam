@@ -2,7 +2,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
 
-from floral_jamming.services.event_service.event_service import Event_Service
 from ...models import User
 from ...forms import UserForm
 from .auth_service_exceptions import *
@@ -14,25 +13,26 @@ class Auth_Service(object):
             cls.instance = super(Auth_Service, cls).__new__(cls)
         return cls.instance
     
-    def __init__(self):
-        self.event_service = Event_Service()
-
-    def is_authenticated_user(self, user: User) -> bool:
+    @staticmethod
+    def is_authenticated_user(user: User) -> bool:
         return user.is_authenticated and not is_guest_user(user)
     
-    def is_anonymous_user(self, user: User) -> bool:
+    @staticmethod
+    def is_anonymous_user(user: User) -> bool:
         return user.is_anonymous
     
-    def is_staff_user(self, user: User) -> bool:
+    @staticmethod
+    def is_staff_user(user: User) -> bool:
         return user.is_staff
     
-    def is_guest_user(self, user: User) -> bool:
+    @staticmethod
+    def is_guest_user(user: User) -> bool:
         return is_guest_user(user)
     
     def convert_guest(self, user: User) -> None:
         if not self.is_guest_user(user):
             return
-        attendees = self.event_service.get_user_attendees(user)
+        attendees = user.attendees.all()
         for attendee in attendees:
             attendee.user = user
             attendee.save()

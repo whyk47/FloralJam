@@ -15,11 +15,17 @@
     <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
         {% csrf_token %}
         <div class="form-group m-2">
-            {% for field in form %}
+            {% for field in attendee_form %}
                 <div class="form-row my-2">
                     {{ field }}
                 </div>
             {% endfor %}
+            {% for field in guest_form %}
+                <div class="form-row my-2">
+                    {{ field }}
+                </div>
+            {% endfor %}
+
         </div>
         <button class='btn btn-success my-2' type="submit">
             {% if attendee %}
@@ -30,6 +36,7 @@
         </button>
     </form>
     {% if attendee %}
+    {% comment %} TODO: change url after deletion is moved to different view {% endcomment %}
         <form action="{% url 'floral_jamming:sign_up' event.id %}" method="delete">
             {% csrf_token %}
             <button class="btn btn-danger" type="submit">Unregister</button>

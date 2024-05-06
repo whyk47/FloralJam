@@ -5,7 +5,7 @@ from django.db.models.query import QuerySet
 from .event_service_exceptions import *
 from ..auth_service.auth_service import Auth_Service
 from ...models import User, Event, Attendee
-from ...forms import AttendeeForm, EventForm
+from ...forms import AttendeeForm, EventForm, GuestForm
 
 
 class Event_Service:
@@ -29,10 +29,13 @@ class Event_Service:
         else:
             raise Invalid_Form(form.errors)
         
-    def get_events(self, user: User) -> QuerySet:
+    def get_events(self, user: User) -> Optional[QuerySet]:
         auth_service = self.auth_service
         if auth_service.is_staff_user(user):
-            return user.events.filter(time__gte=datetime.now()).order_by('time')
+            try:
+                return user.events.filter(time__gte=datetime.now()).order_by('time')
+            except Event.DoesNotExist:
+                return None
         return Event.objects.filter(time__gte=datetime.now()).order_by('time')
 
     def get_event_by_id(self, event_id: int) -> Event:
@@ -43,11 +46,9 @@ class Event_Service:
         
     def get_attendee(self, user: User, event: Event) -> Optional[Attendee]:
         auth_service = self.auth_service
-        if auth_service.is_authenticated_user(user):
-            return event.attendees.filter(user=user).first()
-        elif auth_service.is_guest_user(user):
-            return event.attendees.filter(guest=user).first()
-        return None
+        if auth_service.is_anonymous_user(user):
+            return None
+        return event.attendees.filter(user=user).first()
     
     def get_user_attendees(self, user: User) -> QuerySet:
         return user.attendees.all()
@@ -55,18 +56,22 @@ class Event_Service:
     def create_or_update_user_attendee(self, user: User, event: Event, pax: int) -> Attendee:
         if not self.auth_service.is_authenticated_user(user):
             raise Invalid_User_Type("Must be authenticated user")
+        if pax > event.remaining_slots():
+            raise Invalid_Form("Number of pax exceeds capacity of event")
         attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': pax})
         return attendee
     
-    def create_or_update_guest_attendee(self, user: User, event: Event, form: AttendeeForm) -> Attendee:
+    def create_or_update_guest_attendee(self, user: User, event: Event, attendee_form: AttendeeForm, guest_form: GuestForm) -> Attendee:
         if not self.auth_service.is_guest_user(user):
             raise Invalid_User_Type("Must be guest user")
-        if form.is_valid():
-            data = form.cleaned_data
-            self.auth_service.update_guest_details(data, user)
-            attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': data['pax']})
+        if attendee_form.is_valid() and guest_form.is_valid():
+            attendee_data, guest_data = attendee_form.cleaned_data, guest_form.cleaned_data
+            if attendee_data['pax'] > event.remaining_slots():
+                raise Invalid_Form("Number of pax exceeds capacity of event")
+            self.auth_service.update_user_details(guest_data, user)
+            attendee, created = event.attendees.update_or_create(user=user, defaults={**attendee_data})
         else:
-            raise Invalid_Form(form.errors)
+            raise Invalid_Form(attendee_form.errors)
         return attendee
     
     def delete_attendee(self, user: User, event: Event) -> None:
