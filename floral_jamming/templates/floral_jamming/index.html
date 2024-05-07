@@ -1,5 +1,6 @@
 {% extends 'floral_jamming/layout.html' %} 
 {% load static %} 
+{% load templates %}
 
 {% block body %}
     {% if user.is_staff %}
@@ -10,7 +11,8 @@
     {% else %}
         <h1 class="my-3">Upcoming Events</h1>
     {% endif %}
-
+    
+    {% comment %} TODO: Add pagination {% endcomment %}
     {% for event in events %}
         <div class="card my-1">
             <div class="card-body">
@@ -19,11 +21,17 @@
                 </a>
                 <div class="card-text">
                     <div>{{ event.time }}</div>  
-                    {% if user.is_staff %}
+                    <div>
+                    {% if user|is_staff_user %}
                         <div>Participants: {{ event.num_attendees }}/{{ event.capacity }}</div>
+                    {% elif user|get_pax:event > 0 %}
+                        <div class="text-success">
+                            Registered <span>&#40;</span>{{ user|get_pax:event }} pax<span>&#41;</span>
+                        </div>
                     {% else %}
                         <div>Slots remaining: {{ event.remaining_slots }}/{{ event.capacity }}</div>
                     {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

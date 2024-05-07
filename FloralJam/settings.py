@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,12 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "guest_user",
+    "verify_email.apps.VerifyEmailConfig",
 ]
 
 AUTHENTICATION_BACKENDS = [
-   "django.contrib.auth.backends.ModelBackend",
-   # it should be the last entry to prevent unauthorized access
-   "guest_user.backends.GuestBackend",
+    "django.contrib.auth.backends.ModelBackend",
+    # it should be the last entry to prevent unauthorized access
+    "guest_user.backends.GuestBackend",
 ]
 
 MIDDLEWARE = [
@@ -131,3 +133,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# TODO: Set up email server
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_ID') 
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PW')
+
+DEFAULT_FROM_EMAIL = 'noreply<no_reply@domain.com>'

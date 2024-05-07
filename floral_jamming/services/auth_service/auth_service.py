@@ -1,11 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
+from verify_email.email_handler import send_verification_email
 
 from ...models import User
 from ...forms import UserForm
 from .auth_service_exceptions import *
 
+# TODO: Add password reset functionality
+# TODO: Add alternative signin methods
 
 class Auth_Service(object):
     def __new__(cls):
@@ -60,15 +63,17 @@ class Auth_Service(object):
     def register(self, request: HttpRequest, form: UserForm) -> None:
         if self.is_authenticated_user(request.user):
             raise User_Already_Logged_In('User already logged in')
+        # TODO: Verify email before registering user
         if form.is_valid():
             data = form.cleaned_data
             if data['password'] != data['confirmation']:
                 raise Invalid_Form('Passwords do not match')
             if User.objects.filter(username=data['username']).exists():
                 raise Invalid_Form('Username already taken')
-            user = form.save()
-            self.__convert_guest(request.user, user)
-            login(request, user)
+            inactive_user = send_verification_email(request, form)
+            # user = form.save()
+            # self.__convert_guest(request.user, user)
+            # login(request, user, "django.contrib.auth.backends.ModelBackend")
         else:
             raise Invalid_Form(form.errors)
         

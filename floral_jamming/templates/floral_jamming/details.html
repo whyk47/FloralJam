@@ -13,13 +13,16 @@
     <div>{{ event.location }}</div>
     <div>${{ event.price }}</div>
     <div>{{ event.remaining_slots }}/{{ event.capacity }} slots left</div>
-    {% if user.is_staff %}
+    {% if user|is_staff_user and user == event.creator %}
+        <a href="{% url 'floral_jamming:create' event.id %}">
+            <button class="btn btn-secondary">Edit Event</button>
+        </a>
         <h3>Attendees:</h3>
         <div>
             {% for attendee in event.attendees.all %}
                 <div class="card p-2">
-                    <div class="card-title">{{ attendee.first_name }} {{ attendee.last_name }}</div>
-                    <div class="card-text">{{ attendee.email }}</div> 
+                    <div class="card-title">{{ attendee.user.first_name }} {{ attendee..user.last_name }}</div>
+                    <div class="card-text">{{ attendee.user.email }}</div> 
                 </div>
             {% empty %}
                 <h5>No Attendees Yet</h5>
@@ -58,6 +61,7 @@
                 <button class='btn btn-secondary my-2'>Register as Guest</button>
             </a> 
         {% endif %}
+        {% comment %} TODO: Move form to modal display {% endcomment %}
         <!-- Button trigger modal -->
         {% comment %} <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#guestSignUpModal">
             Register as Guest

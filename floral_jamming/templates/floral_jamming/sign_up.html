@@ -3,11 +3,7 @@
 
 {% block body %}
     <h2 class="mb-4">
-        {% if attendee %}
-            Edit Registration
-        {% else %}
-            Register as Guest
-        {% endif %}
+        {{ attendee|yesno:"Edit Registration,Register as Guest"}}
     </h2>
     {% if message %}
         <div class="text-danger">{{ message }}</div>
@@ -28,11 +24,7 @@
 
         </div>
         <button class='btn btn-success my-2' type="submit">
-            {% if attendee %}
-                Update Registration
-            {% else %}
-                Register
-            {% endif %}
+            {{ attendee|yesno:"Update Registration,Register" }}
         </button>
     </form>
     {% if attendee %}

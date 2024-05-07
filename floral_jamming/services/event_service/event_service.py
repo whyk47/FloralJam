@@ -33,6 +33,27 @@ class Event_Service:
         else:
             raise Invalid_Form(form.errors)
         
+    def __validate_event_capacity(self, event: Event, capacity: int) -> None:
+        if event.num_attendees() > capacity:
+            raise Invalid_Form("Number of attendees registered exceeds capacity of event")
+
+    def update_event(self, event_id: int, user: User, form: EventForm) -> Event:
+        event = self.get_event_by_id(event_id)
+        if not event:
+            raise Event_Does_Not_Exist("Event does not exist")
+        auth_service = self.auth_service
+        if not auth_service.is_staff_user(user):
+            raise Invalid_User_Type("Must be staff user to create event")
+        if not user == event.creator:
+            raise Invalid_User_Type("User must be event creator to update event")
+        if form.is_valid():
+            data = form.cleaned_data
+            self.__validate_event_capacity(event, data['capacity'])
+            event, created = user.events.update_or_create(id=event_id, defaults=data)
+            return event
+        else:
+            raise Invalid_Form(form.errors)
+        
     def get_events(self, user: User) -> Optional[QuerySet]:
         auth_service = self.auth_service
         if auth_service.is_staff_user(user):
@@ -53,6 +74,12 @@ class Event_Service:
         if auth_service.is_anonymous_user(user):
             return None
         return event.attendees.filter(user=user).first()
+    
+    @staticmethod
+    def get_pax(user: User, event: Event) -> int:
+        if user.is_anonymous:
+            return 0
+        return event.attendees.filter(user=user).first().pax
     
     def get_user_attendees(self, user: User) -> QuerySet:
         return user.attendees.all()
@@ -85,6 +112,7 @@ class Event_Service:
     def create_or_update_guest_attendee(self, user: User, event: Event, attendee_form: AttendeeForm, guest_form: GuestForm) -> Attendee:
         if not self.auth_service.is_guest_user(user):
             raise Invalid_User_Type("Must be guest user")
+        # TODO: verify email before registering attendee
         if attendee_form.is_valid() and guest_form.is_valid():
             attendee_data, guest_data = attendee_form.cleaned_data, guest_form.cleaned_data
             self.__validate_guest_forms(user, event, attendee_data, guest_data)

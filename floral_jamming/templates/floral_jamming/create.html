@@ -2,11 +2,18 @@
 {% load static %} 
 
 {% block body %}
-    <h2 class="mb-3">Create Event</h2>
+    <h2 class="mb-3">
+        {{ event|yesno:"Update,Create"}} Event
+    </h2>
     {% if message %}
         <div class='text-danger'>{{ message }}</div>
     {% endif %}
-    <form action="{% url 'floral_jamming:create' %}" method="post">
+    {% if event %}
+        {% url 'floral_jamming:create' event.id as url %}
+    {% else %}
+        {% url 'floral_jamming:create' as url %}
+    {% endif %}
+    <form action="{{ url }}" method="post">
         {% csrf_token %}
         <div class="form-group">
             {% for field in form %}

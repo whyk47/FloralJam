@@ -1,0 +1,11 @@
+{% extends 'floral_jamming/layout.html' %}
+{% load static %}
+{% load templates %}
+
+{% block body %}
+    <div class="text-center m-4">We have sent a verification email to {{ email }}. Please click the link to activate your account.</div>
+    <a href="{% url "floral_jamming:login" event_id %}">
+        <button class="btn btn-primary">Back to Login</button>
+    </a>
+
+{% endblock %}
