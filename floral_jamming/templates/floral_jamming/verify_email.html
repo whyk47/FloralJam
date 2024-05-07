@@ -4,6 +4,10 @@
 
 {% block body %}
     <div class="text-center m-4">We have sent a verification email to {{ email }}. Please click the link to activate your account.</div>
+    <a href="{% url 'request-new-link-from-email' %}">
+        <button class="btn btn-primary">Resend Email</a>
+    </a>
+
     <a href="{% url "floral_jamming:login" event_id %}">
         <button class="btn btn-primary">Back to Login</button>
     </a>

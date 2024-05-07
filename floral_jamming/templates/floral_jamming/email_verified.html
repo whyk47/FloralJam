@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    {% if email_verified %}
+        <h4 class="text-center text-success">Your email has been verified!</h4>
+        <a href="{% url 'floral_jamming:login' %}" class="text-center">Proceed to Login</a>
+    {% else %}
+        <h4 class="text-center text-danger">Your confirmation token has expired. Please request a new one.</h4>
+    {% endif %}
+{% endblock %}

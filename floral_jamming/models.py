@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from .custom_user import User
@@ -22,3 +23,8 @@ class Attendee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees", null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
     pax = models.IntegerField(validators=[MinValueValidator(1)])
+
+class EmailConfirmationToken(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="email_tokens")

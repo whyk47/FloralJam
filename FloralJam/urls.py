@@ -21,5 +21,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('floral_jamming.urls')),
     path("convert/", include("guest_user.urls")),
-    path('verification/', include('verify_email.urls')),	
 ]

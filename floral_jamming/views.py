@@ -145,9 +145,10 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
           try:
                form = UserForm(request.POST)
                auth_service.register(request, form)
-               if event_id > 0:
-                    return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
-               return HttpResponseRedirect(reverse("floral_jamming:index"))
+               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[event_id]))
+               # if event_id > 0:
+               #      return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+               # return HttpResponseRedirect(reverse("floral_jamming:index"))
           except Invalid_Form as e:
                return render(request, "floral_jamming/register.html", {
                          "message": e,

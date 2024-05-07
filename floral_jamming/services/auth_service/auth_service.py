@@ -2,7 +2,6 @@ import os
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
-from verify_email.email_handler import send_verification_email
 
 from ...models import User
 from ...forms import UserForm
@@ -20,7 +19,7 @@ class Auth_Service(object):
     
     @staticmethod
     def is_authenticated_user(user: User) -> bool:
-        return user.is_authenticated and not is_guest_user(user)
+        return user.is_authenticated and not is_guest_user(user) and user.is_active
     
     @staticmethod
     def is_anonymous_user(user: User) -> bool:
@@ -72,8 +71,8 @@ class Auth_Service(object):
                 raise Invalid_Form('Passwords do not match')
             if User.objects.filter(username=data['username']).exists():
                 raise Invalid_Form('Username already taken')
-            print(os.environ.get('EMAIL_ID'), os.environ.get('EMAIL_PW'))
-            inactive_user = send_verification_email(request, form)
+            # inactive_user = send_verification_email(request, form)
+            # return inactive_user
         else:
             raise Invalid_Form(form.errors)
         
