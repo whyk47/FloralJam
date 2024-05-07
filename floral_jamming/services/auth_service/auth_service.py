@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
@@ -9,6 +10,7 @@ from .auth_service_exceptions import *
 
 # TODO: Add password reset functionality
 # TODO: Add alternative signin methods
+# TODO: Implemnent unverified users
 
 class Auth_Service(object):
     def __new__(cls):
@@ -70,10 +72,8 @@ class Auth_Service(object):
                 raise Invalid_Form('Passwords do not match')
             if User.objects.filter(username=data['username']).exists():
                 raise Invalid_Form('Username already taken')
+            print(os.environ.get('EMAIL_ID'), os.environ.get('EMAIL_PW'))
             inactive_user = send_verification_email(request, form)
-            # user = form.save()
-            # self.__convert_guest(request.user, user)
-            # login(request, user, "django.contrib.auth.backends.ModelBackend")
         else:
             raise Invalid_Form(form.errors)
         
