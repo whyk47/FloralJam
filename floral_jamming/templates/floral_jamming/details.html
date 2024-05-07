@@ -27,16 +27,21 @@
         </div>
     {% elif user|is_authenticated_user %}
         {% if attendee %}
-            <form action="{% url 'floral_jamming:sign_up' event.id %}" method="delete">
+            <form action="{% url 'floral_jamming:cancel_sign_up' event.id %}" method="post">
                 {% csrf_token %}
                 <button class='btn btn-danger' type="submit">
                     Cancel Registration
                 </button>
             </form>
         {% else %}
-            <form action="{% url 'floral_jamming:sign_up' event.id %}" method="post">
+            <div class="text-danger">{{ message }}</div>
+            <form action="{% url 'floral_jamming:details' event.id %}" method="post">
                 {% csrf_token %}
-                <input class="form-control mt-2" type="number" name="pax" placeholder="Number of pax" max={{ event.remaining_slots }}>
+                {% for field in attendee_form %}
+                    <div class="form-row my-2">
+                        {{ field }}
+                    </div>
+                {% endfor %}
                 <button class='btn btn-success my-2' type="submit">Register</button>
             </form>
         {% endif %}

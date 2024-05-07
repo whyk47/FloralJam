@@ -15,7 +15,11 @@ class Event_Service:
         return cls.instance
     
     def __init__(self):
-        self.auth_service = Auth_Service()
+        self._auth_service = Auth_Service()
+
+    @property
+    def auth_service(self):
+        return self._auth_service
 
     def create_event(self, user: User, form: EventForm) -> Event:
         auth_service = self.auth_service
@@ -53,12 +57,29 @@ class Event_Service:
     def get_user_attendees(self, user: User) -> QuerySet:
         return user.attendees.all()
     
-    def create_or_update_user_attendee(self, user: User, event: Event, pax: int) -> Attendee:
+    def __validate_pax(self, user: User, event: Event, pax: int) -> None:
+        attendee = self.get_attendee(user, event)
+        attendee_pax = attendee.pax if attendee else 0
+        if pax > event.remaining_slots() + attendee_pax:
+            raise Invalid_Form("Number of pax exceeds capacity of event")
+    
+    def __validate_guest_forms(self, guest: User, event: Event, attendee_data: dict, guest_data: dict) -> None:
+        self.__validate_pax(guest, event, attendee_data['pax'])        
+        
+        user_attendee = event.attendees.filter(user__email=guest_data['email']).first()
+        if user_attendee and user_attendee.user != guest:
+            raise Invalid_Form("Email already in use")
+    
+    
+    def create_or_update_user_attendee(self, user: User, event: Event, attendee_form: AttendeeForm) -> Attendee:
         if not self.auth_service.is_authenticated_user(user):
             raise Invalid_User_Type("Must be authenticated user")
-        if pax > event.remaining_slots():
-            raise Invalid_Form("Number of pax exceeds capacity of event")
-        attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': pax})
+        if attendee_form.is_valid():
+            pax = attendee_form.cleaned_data['pax']
+            self.__validate_pax(user, event, pax)
+            attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': pax})
+        else:
+            raise Invalid_Form(attendee_form.errors)
         return attendee
     
     def create_or_update_guest_attendee(self, user: User, event: Event, attendee_form: AttendeeForm, guest_form: GuestForm) -> Attendee:
@@ -66,8 +87,7 @@ class Event_Service:
             raise Invalid_User_Type("Must be guest user")
         if attendee_form.is_valid() and guest_form.is_valid():
             attendee_data, guest_data = attendee_form.cleaned_data, guest_form.cleaned_data
-            if attendee_data['pax'] > event.remaining_slots():
-                raise Invalid_Form("Number of pax exceeds capacity of event")
+            self.__validate_guest_forms(user, event, attendee_data, guest_data)
             self.auth_service.update_user_details(guest_data, user)
             attendee, created = event.attendees.update_or_create(user=user, defaults={**attendee_data})
         else:

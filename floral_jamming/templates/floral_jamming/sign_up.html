@@ -36,8 +36,7 @@
         </button>
     </form>
     {% if attendee %}
-    {% comment %} TODO: change url after deletion is moved to different view {% endcomment %}
-        <form action="{% url 'floral_jamming:sign_up' event.id %}" method="delete">
+        <form action="{% url 'floral_jamming:cancel_sign_up' event.id %}" method="post">
             {% csrf_token %}
             <button class="btn btn-danger" type="submit">Unregister</button>
         </form>

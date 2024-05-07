@@ -29,10 +29,10 @@ class Auth_Service(object):
     def is_guest_user(user: User) -> bool:
         return is_guest_user(user)
     
-    def convert_guest(self, user: User) -> None:
-        if not self.is_guest_user(user):
+    def __convert_guest(self, guest: User, user: User) -> None:
+        if not self.is_guest_user(guest) or guest.email != user.email:
             return
-        attendees = user.attendees.all()
+        attendees = guest.attendees.all()
         for attendee in attendees:
             attendee.user = user
             attendee.save()
@@ -49,7 +49,7 @@ class Auth_Service(object):
         user = authenticate(username=username, password=password)
         if not user:
             raise Invaild_Credentials('Invalid credentials')
-        self.convert_guest(user)
+        self.__convert_guest(request.user, user)
         login(request, user)
     
     def logout(self, request: HttpRequest) -> None:
@@ -67,7 +67,7 @@ class Auth_Service(object):
             if User.objects.filter(username=data['username']).exists():
                 raise Invalid_Form('Username already taken')
             user = form.save()
-            self.convert_guest(request, user)
+            self.__convert_guest(request.user, user)
             login(request, user)
         else:
             raise Invalid_Form(form.errors)
