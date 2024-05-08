@@ -1,4 +1,3 @@
-import os
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
@@ -16,7 +15,7 @@ class Auth_Service(object):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Auth_Service, cls).__new__(cls)
         return cls.instance
-    
+        
     @staticmethod
     def is_authenticated_user(user: User) -> bool:
         return user.is_authenticated and not is_guest_user(user) and user.is_active
@@ -32,6 +31,16 @@ class Auth_Service(object):
     @staticmethod
     def is_guest_user(user: User) -> bool:
         return is_guest_user(user)
+    
+    @staticmethod
+    def is_email_verified(user: User) -> bool:
+        return user.is_active
+    
+    def get_user_by_id(self, user_id: int) -> User:
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise User_Does_Not_Exist("The user does not exist")
     
     def __convert_guest(self, guest: User, user: User) -> None:
         if not self.is_guest_user(guest) or guest.email != user.email:
@@ -53,6 +62,8 @@ class Auth_Service(object):
         user = authenticate(username=username, password=password)
         if not user:
             raise Invaild_Credentials('Invalid credentials')
+        if not self.is_email_verified(user):
+            raise User_Email_Not_Verified('Email not verified')
         self.__convert_guest(request.user, user)
         login(request, user)
     
@@ -61,18 +72,23 @@ class Auth_Service(object):
             raise User_Not_Logged_In('User not logged in')
         logout(request)
 
-    def register(self, request: HttpRequest, form: UserForm) -> None:
+    def register(self, request: HttpRequest, form: UserForm) -> User:
         if self.is_authenticated_user(request.user):
             raise User_Already_Logged_In('User already logged in')
-        # TODO: Verify email before registering user
         if form.is_valid():
             data = form.cleaned_data
             if data['password'] != data['confirmation']:
                 raise Invalid_Form('Passwords do not match')
             if User.objects.filter(username=data['username']).exists():
                 raise Invalid_Form('Username already taken')
-            # inactive_user = send_verification_email(request, form)
-            # return inactive_user
+            inactive_user = form.save(commit=False)
+            inactive_user.is_active = False
+            inactive_user.save()
+            return inactive_user
         else:
             raise Invalid_Form(form.errors)
+        
+    def set_email_verified(self, user: User) -> None:
+        user.is_active = True
+        user.save()
         

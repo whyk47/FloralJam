@@ -1,8 +1,15 @@
+from datetime import datetime, timedelta
 from uuid import uuid4
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
-from .custom_user import User
 
+class User(AbstractUser):
+    def num_valid_tokens(self) -> int:
+        expired_tokens = self.email_tokens.filter(is_expired=True)
+        for token in expired_tokens:
+            token.delete()
+        return self.email_tokens.all().count()
 
 class Event(models.Model):
     title = models.CharField(max_length=100)
@@ -28,3 +35,6 @@ class EmailConfirmationToken(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="email_tokens")
+    
+    def is_expired(self) -> bool:
+        return self.created_at + timedelta(hours=1) < datetime.now()

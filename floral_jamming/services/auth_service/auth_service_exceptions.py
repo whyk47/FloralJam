@@ -12,3 +12,9 @@ class Invaild_Credentials(Exception):
 
 class Invalid_Form(Exception):
     pass
+
+class User_Does_Not_Exist(Exception):
+    pass
+
+class User_Email_Not_Verified(Exception):
+    pass
