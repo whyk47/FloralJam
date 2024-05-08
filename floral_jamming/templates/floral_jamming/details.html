@@ -8,6 +8,7 @@
             <div class="card-text">You've signed up for this event! <span>&#40;</span>{{ attendee.pax }} pax<span>&#41;</span></div>
         </div>
     {% endif %}
+    {% comment %} TODO: Improve styling {% endcomment %}
     <h1>{{ event.title }}</h1>
     <div>{{ event.time }}</div>
     <div>{{ event.location }}</div>
@@ -19,6 +20,7 @@
         </a>
         <h3>Attendees:</h3>
         <div>
+            {% comment %} TODO: Allow creator to remove attendees {% endcomment %}
             {% for attendee in event.attendees.all %}
                 <div class="card p-2">
                     <div class="card-title">{{ attendee.user.first_name }} {{ attendee..user.last_name }}</div>

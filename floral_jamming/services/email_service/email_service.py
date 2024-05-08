@@ -24,7 +24,7 @@ class Email_Service:
         
     def send_verification_email(self, user: User) -> None:
         if user.num_valid_tokens() > 2:
-            raise Too_Many_Attempts("You have exceeded the maximum number of attempts. Please try again later.")
+            raise Too_Many_Attempts("You have exceeded the maximum number of email requests. Please try again later.")
         token = self.__new_token(user)
         data = {
             'user_id': str(user.id),

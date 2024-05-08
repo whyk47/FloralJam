@@ -128,7 +128,7 @@ def login_view(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRe
                     "event_id": event_id
                })
           except User_Email_Not_Verified as e:
-               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[event_id]))
+               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[e, event_id]))
      else:
           return render(request, "floral_jamming/login.html", {
                "event_id": event_id
@@ -173,7 +173,6 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
                return render(request, "floral_jamming/email_verified.html", {
                     'message': message,
                })
-
           token = email_serivce.get_token_by_id(token_id)
           email_serivce.verify_email_token(user, token)
           auth_service.set_email_verified(user)

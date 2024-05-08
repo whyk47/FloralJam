@@ -8,7 +8,6 @@ from .auth_service_exceptions import *
 
 # TODO: Add password reset functionality
 # TODO: Add alternative signin methods
-# TODO: Implemnent unverified users
 
 class Auth_Service(object):
     def __new__(cls):
@@ -35,6 +34,12 @@ class Auth_Service(object):
     @staticmethod
     def is_email_verified(user: User) -> bool:
         return user.is_active
+        
+    def get_user_by_username(self, username: str) -> User:
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Invaild_Credentials("Invalid credentials")
     
     def get_user_by_id(self, user_id: int) -> User:
         try:
@@ -61,9 +66,10 @@ class Auth_Service(object):
             raise User_Already_Logged_In('User already logged in')
         user = authenticate(username=username, password=password)
         if not user:
+            inactive_user = self.get_user_by_username(username)
+            if not self.is_email_verified(inactive_user):
+                raise User_Email_Not_Verified(inactive_user.id)
             raise Invaild_Credentials('Invalid credentials')
-        if not self.is_email_verified(user):
-            raise User_Email_Not_Verified('Email not verified')
         self.__convert_guest(request.user, user)
         login(request, user)
     
