@@ -1,10 +1,10 @@
-{% extends 'layout.html' %}
+{% extends 'floral_jamming/layout.html' %}
 
 {% block body %}
-    {% if message == '' %}
+    {% if message %}
+        <h4 class="text-center text-danger">{{ message }}. Please request a new token.</h4>
+    {% else %}
         <h4 class="text-center text-success">Your email has been verified!</h4>
         <a href="{% url 'floral_jamming:login' %}" class="text-center">Proceed to Login</a>
-    {% else %}
-        <h4 class="text-center text-danger">{{ message }}. Please request a new token.</h4>
     {% endif %}
 {% endblock %}

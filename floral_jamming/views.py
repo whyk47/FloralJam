@@ -166,16 +166,21 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
      
 @allow_guest_user
 def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpResponse:
-     message = ''
+     message = None
      try:
           user = auth_service.get_user_by_id(user_id)
+          if auth_service.is_authenticated_user(user):
+               return render(request, "floral_jamming/email_verified.html", {
+                    'message': message,
+               })
+
           token = email_serivce.get_token_by_id(token_id)
           email_serivce.verify_email_token(user, token)
           auth_service.set_email_verified(user)
      except (Invalid_Token, User_Does_Not_Exist) as e:
           message = e
      return render(request, "floral_jamming/email_verified.html", {
-          message: message,
+          'message': message,
      })
 
 @allow_guest_user

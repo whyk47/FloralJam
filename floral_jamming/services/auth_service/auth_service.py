@@ -81,7 +81,8 @@ class Auth_Service(object):
                 raise Invalid_User_Form('Passwords do not match')
             if User.objects.filter(username=data['username']).exists():
                 raise Invalid_User_Form('Username already taken')
-            inactive_user = form.save(commit=False)
+            data.pop('confirmation')
+            inactive_user = User.objects.create_user(**data)
             inactive_user.is_active = False
             inactive_user.save()
             return inactive_user
