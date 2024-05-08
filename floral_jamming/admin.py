@@ -6,4 +6,5 @@ admin.site.register([
     User,
     Event,
     Attendee,
+    EmailConfirmationToken,
 ])

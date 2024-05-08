@@ -10,7 +10,7 @@ class Not_Guest_User(Exception):
 class Invaild_Credentials(Exception):
     pass
 
-class Invalid_Form(Exception):
+class Invalid_User_Form(Exception):
     pass
 
 class User_Does_Not_Exist(Exception):

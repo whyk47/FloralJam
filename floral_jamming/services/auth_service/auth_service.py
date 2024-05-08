@@ -78,15 +78,15 @@ class Auth_Service(object):
         if form.is_valid():
             data = form.cleaned_data
             if data['password'] != data['confirmation']:
-                raise Invalid_Form('Passwords do not match')
+                raise Invalid_User_Form('Passwords do not match')
             if User.objects.filter(username=data['username']).exists():
-                raise Invalid_Form('Username already taken')
+                raise Invalid_User_Form('Username already taken')
             inactive_user = form.save(commit=False)
             inactive_user.is_active = False
             inactive_user.save()
             return inactive_user
         else:
-            raise Invalid_Form(form.errors)
+            raise Invalid_User_Form(form.errors)
         
     def set_email_verified(self, user: User) -> None:
         user.is_active = True

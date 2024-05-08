@@ -30,13 +30,14 @@ class Email_Service:
             'user_id': str(user.id),
             'token_id': str(token.id),
         }
-        message = get_template('floral_jamming/verification_email.hmtl').render(data)
+        message = get_template('floral_jamming/verification_email.html').render(data)
         send_mail(
             subject='Floral Jamming - Verify Email',
-            message=message,
+            message='',
             from_email=None,
             recipient_list=[user.email],
             fail_silently=False,
+            html_message=message
         )
     
     def verify_email_token(self, user: User, token: EmailConfirmationToken) -> None:

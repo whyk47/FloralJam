@@ -37,7 +37,7 @@ def create(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRespon
                else:
                     event = event_service.create_event(user=request.user, form=form)
                return HttpResponseRedirect(reverse("floral_jamming:details", args=[event.id]))
-          except Invalid_Form as e:
+          except Invalid_User_Form as e:
                return render(request, "floral_jamming/create.html", {
                     "message": e,
                     "form": form,
@@ -65,7 +65,7 @@ def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseR
                guest_form = GuestForm(request.POST)
                try:
                     attendee = event_service.create_or_update_guest_attendee(user=request.user, event=event, attendee_form=attendee_form, guest_form=guest_form)
-               except Invalid_Form as e:
+               except Invalid_User_Form as e:
                     return render(request, 'floral_jamming/sign_up.html', {
                          'attendee': attendee,
                          'event': event,
@@ -101,7 +101,7 @@ def details(request: HttpRequest, event_id: int) -> HttpResponse:
           attendee_form = AttendeeForm(request.POST)
           try:
                attendee = event_service.create_or_update_user_attendee(user=request.user, event=event, attendee_form=attendee_form)
-          except Invalid_Form as e:
+          except Invalid_User_Form as e:
                msg = e
      return render(request, 'floral_jamming/details.html', {
           'event': event,
@@ -152,7 +152,7 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
                form = UserForm(request.POST)
                inactive_user = auth_service.register(request, form)
                return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[inactive_user.id, event_id]))
-          except Invalid_Form as e:
+          except Invalid_User_Form as e:
                return render(request, "floral_jamming/register.html", {
                          "message": e,
                          "event_id": event_id,
@@ -164,7 +164,6 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
                "event_id": event_id,
           })
      
-# TODO: Implement verify email view
 @allow_guest_user
 def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpResponse:
      message = ''
