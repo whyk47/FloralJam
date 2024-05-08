@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class User(AbstractUser):
+    is_email_verified = models.BooleanField(default=False)
     def num_valid_tokens(self) -> int:
         for token in self.email_tokens.all():
             if token.is_expired():
@@ -22,7 +23,7 @@ class Event(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
 
     def num_attendees(self) -> int:
-        return sum([attendee.pax for attendee in self.attendees.all()])
+        return sum([attendee.pax for attendee in self.attendees.filter(user__is_email_verified=True)])
     
     def remaining_slots(self) -> int:
         return self.capacity - self.num_attendees()

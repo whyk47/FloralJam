@@ -15,6 +15,10 @@ class UserForm(forms.ModelForm):
         }
     confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
 
+class LoginForm(forms.Form):
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'username'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event

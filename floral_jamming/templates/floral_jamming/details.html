@@ -4,9 +4,18 @@
 
 {% block body %}
     {% if attendee %}
-        <div class="card bg-success text-white p-2 m-2">
-            <div class="card-text">You've signed up for this event! <span>&#40;</span>{{ attendee.pax }} pax<span>&#41;</span></div>
-        </div>
+        {% if user|is_email_verified %}
+            <div class="card bg-success text-white p-2 m-2">
+                <div class="card-text">You've signed up for this event! <span>&#40;</span>{{ attendee.pax }} pax<span>&#41;</span></div>
+            </div>
+        {% else %}
+            <div class="card bg-info text-white p-2 m-2">
+                <div class="card-text">
+                    We have sent a verification email to {{ user.email }}. Please click the link to confirm your registration.
+                </div>
+            </div>
+        {% endif %}
+
     {% endif %}
     {% comment %} TODO: Improve styling {% endcomment %}
     <h1>{{ event.title }}</h1>

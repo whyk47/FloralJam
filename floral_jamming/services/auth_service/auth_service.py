@@ -2,8 +2,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
 
+from ...util import get_data, Invalid_Form
 from ...models import User
-from ...forms import UserForm
+from ...forms import LoginForm, UserForm
 from .auth_service_exceptions import *
 
 # TODO: Add password reset functionality
@@ -17,7 +18,7 @@ class Auth_Service(object):
         
     @staticmethod
     def is_authenticated_user(user: User) -> bool:
-        return user.is_authenticated and not is_guest_user(user) and user.is_active
+        return user.is_authenticated and not is_guest_user(user) and user.is_email_verified
     
     @staticmethod
     def is_anonymous_user(user: User) -> bool:
@@ -33,7 +34,7 @@ class Auth_Service(object):
     
     @staticmethod
     def is_email_verified(user: User) -> bool:
-        return user.is_active
+        return user.is_email_verified
         
     def get_user_by_username(self, username: str) -> User:
         try:
@@ -58,13 +59,17 @@ class Auth_Service(object):
     def update_user_details(self, data: dict, user: User) -> None:
         user.first_name = data['first_name']
         user.last_name = data['last_name']
-        user.email = data['email']
+        if data['email'] != user.email:
+            user.is_email_verified = False
+            user.email = data['email']
         user.save()
-        
-    def login(self, request: HttpRequest, username: str, password: str) -> None:
+
+    def login(self, request: HttpRequest, form: LoginForm) -> None:
         if self.is_authenticated_user(request.user):
             raise User_Already_Logged_In('User already logged in')
-        user = authenticate(username=username, password=password)
+        data = get_data(form, Invaild_Credentials, 'Invalid credentials')
+        username=data['username']
+        user = authenticate(username=username, password=data['password'])
         if not user:
             inactive_user = self.get_user_by_username(username)
             if not self.is_email_verified(inactive_user):
@@ -78,24 +83,25 @@ class Auth_Service(object):
             raise User_Not_Logged_In('User not logged in')
         logout(request)
 
+    def __validate_registration_data(self, data: dict) -> dict:
+        if data['password'] != data['confirmation']:
+            raise Invalid_Form('Passwords do not match')
+        if User.objects.filter(username=data['username']).exists():
+            raise Invalid_Form('Username already taken')
+        data.pop('confirmation')
+        return data
+
     def register(self, request: HttpRequest, form: UserForm) -> User:
         if self.is_authenticated_user(request.user):
             raise User_Already_Logged_In('User already logged in')
-        if form.is_valid():
-            data = form.cleaned_data
-            if data['password'] != data['confirmation']:
-                raise Invalid_User_Form('Passwords do not match')
-            if User.objects.filter(username=data['username']).exists():
-                raise Invalid_User_Form('Username already taken')
-            data.pop('confirmation')
-            inactive_user = User.objects.create_user(**data)
-            inactive_user.is_active = False
-            inactive_user.save()
-            return inactive_user
-        else:
-            raise Invalid_User_Form(form.errors)
+        data = self.__validate_registration_data(get_data(form))
+        inactive_user = User.objects.create_user(**data)
+        inactive_user.is_active = False
+        inactive_user.save()
+        return inactive_user
         
     def set_email_verified(self, user: User) -> None:
         user.is_active = True
+        user.is_email_verified = True
         user.save()
         

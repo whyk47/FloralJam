@@ -6,6 +6,7 @@ from .event_service_exceptions import *
 from ..auth_service.auth_service import Auth_Service
 from ...models import User, Event, Attendee
 from ...forms import AttendeeForm, EventForm, GuestForm
+from ...util import get_data, Invalid_Form
 
 
 class Event_Service:
@@ -25,13 +26,11 @@ class Event_Service:
         auth_service = self.auth_service
         if not auth_service.is_staff_user(user):
             raise Invalid_User_Type("Must be staff user to create event")
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.creator = user
-            event.save()
-            return event
-        else:
-            raise Invalid_Form(form.errors)
+        data = get_data(form)
+        event = form.save(commit=False)
+        event.creator = user
+        event.save()
+        return event
         
     def __validate_event_capacity(self, event: Event, capacity: int) -> None:
         if event.num_attendees() > capacity:
@@ -46,13 +45,10 @@ class Event_Service:
             raise Invalid_User_Type("Must be staff user to create event")
         if not user == event.creator:
             raise Invalid_User_Type("User must be event creator to update event")
-        if form.is_valid():
-            data = form.cleaned_data
-            self.__validate_event_capacity(event, data['capacity'])
-            event, created = user.events.update_or_create(id=event_id, defaults=data)
-            return event
-        else:
-            raise Invalid_Form(form.errors)
+        data = get_data(form)
+        self.__validate_event_capacity(event, data['capacity'])
+        event, created = user.events.update_or_create(id=event_id, defaults=data)
+        return event
         
     def get_events(self, user: User) -> Optional[QuerySet]:
         auth_service = self.auth_service
@@ -101,25 +97,20 @@ class Event_Service:
     def create_or_update_user_attendee(self, user: User, event: Event, attendee_form: AttendeeForm) -> Attendee:
         if not self.auth_service.is_authenticated_user(user):
             raise Invalid_User_Type("Must be authenticated user")
-        if attendee_form.is_valid():
-            pax = attendee_form.cleaned_data['pax']
-            self.__validate_pax(user, event, pax)
-            attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': pax})
-        else:
-            raise Invalid_Form(attendee_form.errors)
+        data = get_data(attendee_form)
+        pax = data['pax']
+        self.__validate_pax(user, event, pax)
+        attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': pax})
         return attendee
     
     def create_or_update_guest_attendee(self, user: User, event: Event, attendee_form: AttendeeForm, guest_form: GuestForm) -> Attendee:
         if not self.auth_service.is_guest_user(user):
             raise Invalid_User_Type("Must be guest user")
         # TODO: verify email before registering attendee
-        if attendee_form.is_valid() and guest_form.is_valid():
-            attendee_data, guest_data = attendee_form.cleaned_data, guest_form.cleaned_data
-            self.__validate_guest_forms(user, event, attendee_data, guest_data)
-            self.auth_service.update_user_details(guest_data, user)
-            attendee, created = event.attendees.update_or_create(user=user, defaults={**attendee_data})
-        else:
-            raise Invalid_Form(attendee_form.errors)
+        attendee_data, guest_data = get_data(attendee_form), get_data(guest_form)
+        self.__validate_guest_forms(user, event, attendee_data, guest_data)
+        self.auth_service.update_user_details(guest_data, user)
+        attendee, created = event.attendees.update_or_create(user=user, defaults={**attendee_data})
         return attendee
     
     def delete_attendee(self, user: User, event: Event) -> None:

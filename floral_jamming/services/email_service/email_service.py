@@ -14,7 +14,7 @@ class Email_Service:
         try:
             return EmailConfirmationToken.objects.get(id=token_id)
         except EmailConfirmationToken.DoesNotExist:
-            raise Invalid_Token("The token does not exist")
+            raise Invalid_Token("This token is no longer valid")
         
     def __new_token(self, user: User) -> EmailConfirmationToken:
         return EmailConfirmationToken.objects.create(user=user)
