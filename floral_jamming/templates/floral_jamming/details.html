@@ -40,23 +40,24 @@
             {% endfor %}
         </div>
     {% elif user|is_authenticated_user %}
+        <div class="text-danger">{{ message }}</div>
+        <form action="{% url 'floral_jamming:details' event.id %}" method="post">
+            {% csrf_token %}
+            {% for field in attendee_form %}
+                <div class="form-row my-2">
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <button class='btn btn-success my-2' type="submit">
+                {{ attendee|yesno:"Update Registration,Register"}}
+            </button>
+        </form>
         {% if attendee %}
             <form action="{% url 'floral_jamming:cancel_sign_up' event.id %}" method="post">
                 {% csrf_token %}
                 <button class='btn btn-danger' type="submit">
                     Cancel Registration
                 </button>
-            </form>
-        {% else %}
-            <div class="text-danger">{{ message }}</div>
-            <form action="{% url 'floral_jamming:details' event.id %}" method="post">
-                {% csrf_token %}
-                {% for field in attendee_form %}
-                    <div class="form-row my-2">
-                        {{ field }}
-                    </div>
-                {% endfor %}
-                <button class='btn btn-success my-2' type="submit">Register</button>
             </form>
         {% endif %}
     {% else %}

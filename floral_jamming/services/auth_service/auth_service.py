@@ -75,8 +75,11 @@ class Auth_Service(object):
             if not self.is_email_verified(inactive_user):
                 raise User_Email_Not_Verified(inactive_user.id)
             raise Invaild_Credentials('Invalid credentials')
+        self.login_user(request, user)
+
+    def login_user(self, request: HttpRequest, user: User) -> None:
         self.__convert_guest(request.user, user)
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     
     def logout(self, request: HttpRequest) -> None:
         if not self.is_authenticated_user(request.user):
@@ -95,10 +98,13 @@ class Auth_Service(object):
         if self.is_authenticated_user(request.user):
             raise User_Already_Logged_In('User already logged in')
         data = self.__validate_registration_data(get_data(form))
-        inactive_user = User.objects.create_user(**data)
-        inactive_user.is_active = False
-        inactive_user.save()
-        return inactive_user
+        new_user = User.objects.create_user(**data)
+        if self.is_email_verified(request.user) and request.user.email == new_user.email:
+            self.set_email_verified(new_user)
+        else:
+            new_user.is_active = False
+        new_user.save()
+        return new_user
         
     def set_email_verified(self, user: User) -> None:
         user.is_active = True

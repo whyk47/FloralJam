@@ -98,7 +98,7 @@ def cancel_sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpRe
 def details(request: HttpRequest, event_id: int) -> HttpResponse:
      event = Event.objects.get(id=event_id)
      attendee = event_service.get_attendee(user=request.user, event=event)
-     attendee_form = AttendeeForm(instance=attendee)
+     attendee_form = AttendeeForm()
      msg = ''
      if request.method == "POST":
           attendee_form = AttendeeForm(request.POST)
@@ -154,8 +154,10 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
      if request.method == "POST":
           try:
                form = UserForm(request.POST)
-               inactive_user = auth_service.register(request, form)
-               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[inactive_user.id, event_id]))
+               new_user = auth_service.register(request, form)
+               if auth_service.is_email_verified(new_user):
+                    auth_service.login_user(request, new_user)
+               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[new_user.id, event_id]))
           except Invalid_Form as e:
                return render(request, "floral_jamming/register.html", {
                          "message": e,
@@ -190,17 +192,17 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
 def verify_email(request: HttpRequest, user_id: int, event_id: int = 0) -> HttpResponse:
      message = ''
      event = event_service.get_event_by_id(event_id) if event_id > 0 else None
-     inactive_user = auth_service.get_user_by_id(user_id)
-     if auth_service.is_authenticated_user(inactive_user):
+     user = auth_service.get_user_by_id(user_id)
+     if auth_service.is_authenticated_user(user):
           if event_id > 0:
                return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      try:
-          email_serivce.send_verification_email(inactive_user)
+          email_serivce.send_verification_email(user)
      except Too_Many_Attempts as e:
           message = e
      return render(request, "floral_jamming/verify_email.html", {
-          "inactive_user": inactive_user,
+          "inactive_user": user,
           "event_id": event_id,
           "message": message,
      })
