@@ -1,0 +1,15 @@
+{% extends 'floral_jamming/layout.html' %}
+{% load static %}
+{% load templates %}
+
+{% block body %}
+    {% if error %}
+        <h4 class="text-center text-danger">{{ error }}. Please request a new token.</h4>
+    {% else %}
+    <h4 class="text-center text-success">{{ success_message }}</h4>
+    <div class="d-flex justify-content-center">
+        <a href="{% url 'floral_jamming:login' %}">Proceed to Login</a>
+    </div>
+
+    {% endif %}
+{% endblock %}

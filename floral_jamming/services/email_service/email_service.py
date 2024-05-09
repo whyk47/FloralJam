@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.urls import reverse
+import os
 
 from ...models import EmailConfirmationToken, User
 
@@ -24,11 +25,12 @@ class Email_Service:
     def delete_tokens(self, user: User) -> None:
         user.email_tokens.all().delete()
         
-    def send_verification_email(self, user: User, page: str) -> None:
+    def send_verification_email(self, user: User, page: str, host: str) -> None:
         if user.num_valid_tokens() > 2:
             raise Too_Many_Attempts("You have exceeded the maximum number of email requests. Please try again later.")
         token = self.__new_token(user)
         url = reverse(page, args=[user.id, token.id])
+        print(url)
         message = get_template('floral_jamming/verification_email.html').render({'url': url})
         send_mail(
             subject='Floral Jamming - Verify Email',

@@ -182,20 +182,21 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
           auth_service.set_email_verified(user)
      except (Invalid_Token, User_Does_Not_Exist) as e:
           message = e
-     return render(request, "floral_jamming/email_verified.html", {
+     return render(request, "floral_jamming/outcome.html", {
           'message': message,
+          'success_message': "Your email has been verified!"
      })
 
 @allow_guest_user
 def verify_email(request: HttpRequest, user_id: int, path: str, event_id: int = 0) -> HttpResponse:
-     message = ''
+     message = None
      user = auth_service.get_user_by_id(user_id)
-     if auth_service.is_authenticated_user(user):
+     if auth_service.is_authenticated_user(request.user):
           if event_id > 0:
                return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      try:
-          email_serivce.send_verification_email(user, path)
+          email_serivce.send_verification_email(user, path, request.get_host())
      except Too_Many_Attempts as e:
           message = e
      return render(request, "floral_jamming/verify_email.html", {
@@ -223,6 +224,8 @@ def forgot_password(request: HttpRequest, event_id: int = 0) -> HttpResponse | H
 
 @allow_guest_user
 def reset_password(request: HttpRequest, user_id: int, token_id: str) -> HttpResponse:
+     message = None
+     form = PasswordResetForm()
      try:
           user = auth_service.get_user_by_id(user_id)
           if not auth_service.is_authenticated_user(user):
@@ -230,16 +233,21 @@ def reset_password(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
           token = email_serivce.get_token_by_id(token_id)
           email_serivce.verify_email_token(user, token)
      except (Invalid_Token, User_Does_Not_Exist, Invaild_Credentials) as e:
-          return render(request, "floral_jamming/email_verified.html", {
-               'message': e,
+          return render(request, "floral_jamming/outcome.html", {
+               message: e
           })
      if request.method == "POST":
           form = PasswordResetForm(request.POST)
           try:
                auth_service.reset_password(user, form)
+               return render(request, "floral_jamming/outcome.html", {
+                    "success_message": "Your Password has been reset!"
+               })
           except Invalid_Form as e:
                message = e
-
      return render(request, "floral_jamming/reset_password.html", {
-          
+          "forms": [form],
+          "user_id": user_id,
+          "token_id": token_id,
+          "message": message,
      })
