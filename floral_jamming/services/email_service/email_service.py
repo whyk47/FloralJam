@@ -1,8 +1,10 @@
 from django.core.mail import send_mail
 from django.template.loader import get_template
+from django.urls import reverse
 
-from floral_jamming.models import EmailConfirmationToken, User
-from floral_jamming.services.email_service.email_service_exceptions import *
+from ...models import EmailConfirmationToken, User
+
+from ..email_service.email_service_exceptions import *
 
 class Email_Service:
     def __new__(cls):
@@ -19,18 +21,15 @@ class Email_Service:
     def __new_token(self, user: User) -> EmailConfirmationToken:
         return EmailConfirmationToken.objects.create(user=user)
 
-    def __delete_tokens(self, user: User) -> None:
+    def delete_tokens(self, user: User) -> None:
         user.email_tokens.all().delete()
         
-    def send_verification_email(self, user: User) -> None:
+    def send_verification_email(self, user: User, page: str) -> None:
         if user.num_valid_tokens() > 2:
             raise Too_Many_Attempts("You have exceeded the maximum number of email requests. Please try again later.")
         token = self.__new_token(user)
-        data = {
-            'user_id': str(user.id),
-            'token_id': str(token.id),
-        }
-        message = get_template('floral_jamming/verification_email.html').render(data)
+        url = reverse(page, args=[user.id, token.id])
+        message = get_template('floral_jamming/verification_email.html').render({'url': url})
         send_mail(
             subject='Floral Jamming - Verify Email',
             message='',
@@ -46,4 +45,3 @@ class Email_Service:
             raise Invalid_Token("The token has expired")
         if user != token.user:
             raise Invalid_Token("The token does not belong to the requested user")
-        self.__delete_tokens(user)

@@ -32,7 +32,7 @@
             {% comment %} TODO: Allow creator to remove attendees {% endcomment %}
             {% for attendee in event.attendees.all %}
                 <div class="card p-2">
-                    <div class="card-title">{{ attendee.user.first_name }} {{ attendee..user.last_name }}</div>
+                    <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }}</div>
                     <div class="card-text">{{ attendee.user.email }}</div> 
                 </div>
             {% empty %}
@@ -40,25 +40,16 @@
             {% endfor %}
         </div>
     {% elif user|is_authenticated_user %}
-        <div class="text-danger">{{ message }}</div>
-        <form action="{% url 'floral_jamming:details' event.id %}" method="post">
-            {% csrf_token %}
-            {% for field in attendee_form %}
-                <div class="form-row my-2">
-                    {{ field }}
-                </div>
-            {% endfor %}
-            <button class='btn btn-success my-2' type="submit">
-                {{ attendee|yesno:"Update Registration,Register"}}
-            </button>
-        </form>
         {% if attendee %}
+            {% include 'floral_jamming/components/form.html' with button_label="Update Registration" %}
             <form action="{% url 'floral_jamming:cancel_sign_up' event.id %}" method="post">
                 {% csrf_token %}
                 <button class='btn btn-danger' type="submit">
                     Cancel Registration
                 </button>
             </form>
+        {% else %}
+            {% include 'floral_jamming/components/form.html' with button_label="Register" %}
         {% endif %}
     {% else %}
         {% if attendee %}

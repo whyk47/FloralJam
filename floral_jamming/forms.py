@@ -19,6 +19,13 @@ class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'username'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
+class ForgotPasswordForm(forms.Form):
+    data = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username or Email Address', 'size': 30}))
+
+class PasswordResetForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
+
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event

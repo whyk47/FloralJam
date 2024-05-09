@@ -1,27 +1,13 @@
 {% extends "floral_jamming/layout.html" %} 
 {% block body %}
 
-<h2 class="m-3">Login</h2>
+{% url 'floral_jamming:login' event_id as submit_url %}
+{% include "floral_jamming/components/form.html" with title="Login" button_label="Login" %}
 
-{% if message %}
-<div class="mx-3 text-danger">{{ message }}</div>
-{% endif %}
-
-<form action="{% url 'floral_jamming:login' event_id %}" method="post" class="m-3">
-    {% csrf_token %}
-        <div class="form-group">
-            {% for field in form %}
-                <div class="form-row my-2">
-                    {{ field }}
-                </div>
-            {% endfor %}
-            <input class="btn btn-primary" type="submit" value="Login">
-        </div>
-</form>
-
-<div class="m-3">
+<div>
     Don't have an account? 
     <a href="{% url 'floral_jamming:register' event_id %}">Register here.</a>
 </div>
+<a href="{% url 'floral_jamming:forgot_password' %}">I forgot my password.</a>
 
 {% endblock %}

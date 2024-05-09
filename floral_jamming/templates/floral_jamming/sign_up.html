@@ -2,6 +2,19 @@
 {% load static %} 
 
 {% block body %}
+    {% if attendee %}
+        {% include 'floral_jamming/components/form.html' with title='Edit Registration' button_label='Update' %}
+        <form action="{% url 'floral_jamming:cancel_sign_up' event.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Unregister</button>
+        </form>
+    {% else %}
+        {% include 'floral_jamming/components/form.html' with title='Register as Guest' button_label='Register' %}
+        <a href="{% url 'floral_jamming:details' event.id %}">
+            <button class="btn btn-danger">Cancel Registration</button>
+        </a>
+    {% endif %}
+{% comment %} 
     <h2 class="mb-4">
         {{ attendee|yesno:"Edit Registration,Register as Guest"}}
     </h2>
@@ -27,6 +40,7 @@
             {{ attendee|yesno:"Update Registration,Register" }}
         </button>
     </form>
+
     {% if attendee %}
         <form action="{% url 'floral_jamming:cancel_sign_up' event.id %}" method="post">
             {% csrf_token %}
@@ -36,7 +50,7 @@
         <a href="{% url 'floral_jamming:details' event.id %}">
             <button class="btn btn-danger" type="submit">Cancel Registration</button>
         </a>
-    {% endif %}
+    {% endif %} {% endcomment %}
 
 {% endblock %}
 

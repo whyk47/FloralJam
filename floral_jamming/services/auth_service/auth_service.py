@@ -1,11 +1,14 @@
+from typing import Optional
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
 
 from ...util import get_data, Invalid_Form
 from ...models import User
-from ...forms import LoginForm, UserForm
+from ...forms import LoginForm, PasswordResetForm, ForgotPasswordForm, UserForm
 from .auth_service_exceptions import *
+from ..email_service.email_service import Email_Service
+
 
 # TODO: Add password reset functionality
 # TODO: Add alternative signin methods
@@ -15,6 +18,9 @@ class Auth_Service(object):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Auth_Service, cls).__new__(cls)
         return cls.instance
+    
+    def __init__(self):
+        self.email_service = Email_Service()
         
     @staticmethod
     def is_authenticated_user(user: User) -> bool:
@@ -41,6 +47,13 @@ class Auth_Service(object):
             return User.objects.get(username=username)
         except User.DoesNotExist:
             raise Invaild_Credentials("Invalid credentials")
+        
+    def get_user_by_email(self, email: str) -> User:
+        users = User.objects.filter(email=email)
+        for user in users:
+            if self.is_authenticated_user(user):
+                return user
+        raise Invaild_Credentials("Invalid credentials")
     
     def get_user_by_id(self, user_id: int) -> User:
         try:
@@ -110,4 +123,24 @@ class Auth_Service(object):
         user.is_active = True
         user.is_email_verified = True
         user.save()
-        
+        self.email_service.delete_tokens(user)
+
+    def request_password_reset(self, form: ForgotPasswordForm) -> User:
+        data = get_data(form)
+        try:
+            user = self.get_user_by_username(data['data'])
+        except Invaild_Credentials as e:
+            user = self.get_user_by_email(data['data'])
+        if not self.is_authenticated_user(user):
+            raise Invaild_Credentials('Invalid credentials')
+        return user
+
+    def reset_password(self, user: User, form: PasswordResetForm) -> None:
+        if not self.is_authenticated_user(user):
+            raise Invaild_Credentials('Invalid credentials')
+        data = get_data(form)
+        if data['password'] != data['confirmation']:
+            raise Invalid_Form("Passwords do not match")
+        user.set_password(data['password'])
+        user.save()
+        self.email_service.delete_tokens(user)

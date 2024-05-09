@@ -1,0 +1,20 @@
+{% load templates %}
+
+<h2 class="mb-3">{{ title }}</h2>
+
+<div class="text-danger">{{ message|default:'' }}</div>
+<form action="{{ submit_url }}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {% for form in forms %}
+            {% for field in form %}
+                <div class="form-row my-2">
+                    {{ field }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-{{ button_color|default:'success' }} mb-2">
+        {{ button_label|default:"Submit"}}
+    </button>
+</form>

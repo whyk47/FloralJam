@@ -40,12 +40,12 @@ def create(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRespon
           except Invalid_Form as e:
                return render(request, "floral_jamming/create.html", {
                     "message": e,
-                    "form": form,
+                    "forms": [form],
                     "event": event,
                })
      else:
           return render(request, "floral_jamming/create.html", {
-               "form": EventForm(instance=event),
+               "forms": [EventForm(instance=event)],
                "event": event,
           })
 
@@ -66,13 +66,12 @@ def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseR
                try:
                     attendee = event_service.create_or_update_guest_attendee(user=request.user, event=event, attendee_form=attendee_form, guest_form=guest_form)
                     if not auth_service.is_email_verified(request.user):
-                         return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[request.user.id, event_id]))
+                         return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[request.user.id, "floral_jamming:email_verified", event_id]))
                except Invalid_Form as e:
                     return render(request, 'floral_jamming/sign_up.html', {
                          'attendee': attendee,
                          'event': event,
-                         'attendee_form': attendee_form,
-                         'guest_form': guest_form,
+                         'forms': [guest_form, attendee_form],
                          'message': e
                     })
                
@@ -82,8 +81,7 @@ def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseR
      return render(request, 'floral_jamming/sign_up.html', {
           'attendee': attendee,
           'event': event,
-          'attendee_form': AttendeeForm(instance=attendee),
-          'guest_form': GuestForm(instance=request.user),
+          'forms': [GuestForm(instance=request.user), AttendeeForm(instance=attendee)]
      })
 
 @allow_guest_user
@@ -109,7 +107,7 @@ def details(request: HttpRequest, event_id: int) -> HttpResponse:
      return render(request, 'floral_jamming/details.html', {
           'event': event,
           'attendee': attendee,
-          'attendee_form': attendee_form,
+          'forms': [attendee_form],
           'message': msg
      })
 
@@ -128,14 +126,14 @@ def login_view(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRe
                return render(request, "floral_jamming/login.html", {
                     "message": e,
                     "event_id": event_id,
-                    "form": LoginForm(),
+                    "forms": [LoginForm()],
                })
           except User_Email_Not_Verified as e:
                return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[e, event_id]))
      else:
           return render(request, "floral_jamming/login.html", {
                "event_id": event_id,
-               "form": LoginForm(),
+               "forms": [LoginForm()],
           })
      
 
@@ -157,16 +155,16 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
                new_user = auth_service.register(request, form)
                if auth_service.is_email_verified(new_user):
                     auth_service.login_user(request, new_user)
-               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[new_user.id, event_id]))
+               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[new_user.id, "floral_jamming:email_verified", event_id]))
           except Invalid_Form as e:
                return render(request, "floral_jamming/register.html", {
                          "message": e,
                          "event_id": event_id,
-                         "form": form,
+                         "forms": [form],
                     })
      else:
           return render(request, "floral_jamming/register.html", {
-               "form": UserForm(),
+               "forms": [UserForm()],
                "event_id": event_id,
           })
      
@@ -189,20 +187,59 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
      })
 
 @allow_guest_user
-def verify_email(request: HttpRequest, user_id: int, event_id: int = 0) -> HttpResponse:
+def verify_email(request: HttpRequest, user_id: int, path: str, event_id: int = 0) -> HttpResponse:
      message = ''
-     event = event_service.get_event_by_id(event_id) if event_id > 0 else None
      user = auth_service.get_user_by_id(user_id)
      if auth_service.is_authenticated_user(user):
           if event_id > 0:
                return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      try:
-          email_serivce.send_verification_email(user)
+          email_serivce.send_verification_email(user, path)
      except Too_Many_Attempts as e:
           message = e
      return render(request, "floral_jamming/verify_email.html", {
-          "inactive_user": user,
+          "user": user,
           "event_id": event_id,
           "message": message,
+     })
+
+@allow_guest_user
+def forgot_password(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResponseRedirect:
+     message = None
+     if request.method == "POST":
+          form = ForgotPasswordForm(request.POST)
+          try:
+               user = auth_service.request_password_reset(form)
+               return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[user.id, "floral_jamming:reset_password", event_id]))
+          except (Invalid_Form, Invaild_Credentials) as e:
+               message = e
+     return render(request, "floral_jamming/forgot_password.html", {
+          "message": message,
+          "forms": [ForgotPasswordForm()],
+          "event_id": event_id,
+     })
+
+
+@allow_guest_user
+def reset_password(request: HttpRequest, user_id: int, token_id: str) -> HttpResponse:
+     try:
+          user = auth_service.get_user_by_id(user_id)
+          if not auth_service.is_authenticated_user(user):
+               raise Invaild_Credentials('Invalid credentials')
+          token = email_serivce.get_token_by_id(token_id)
+          email_serivce.verify_email_token(user, token)
+     except (Invalid_Token, User_Does_Not_Exist, Invaild_Credentials) as e:
+          return render(request, "floral_jamming/email_verified.html", {
+               'message': e,
+          })
+     if request.method == "POST":
+          form = PasswordResetForm(request.POST)
+          try:
+               auth_service.reset_password(user, form)
+          except Invalid_Form as e:
+               message = e
+
+     return render(request, "floral_jamming/reset_password.html", {
+          
      })

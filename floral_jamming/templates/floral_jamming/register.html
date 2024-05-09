@@ -2,25 +2,9 @@
 
 {% block body %}
 
-    <h2 class="m-3">Register</h2>
+    {% include 'floral_jamming/components/form.html' with title='Register' button_label='Register' %}
 
-    {% if message %}
-        <div class="mx-3 text-danger">{{ message }}</div>
-    {% endif %}
-
-    <form action="{% url 'floral_jamming:register' event_id %}" method="post" class="m-3">
-        {% csrf_token %}
-        <div class="form-group">
-            {% for field in form %}
-                <div class="form-row my-2">
-                    {{ field }}
-                </div>
-            {% endfor %}
-            <input class="btn btn-success" type="submit" value="Register">    
-        </div>
-    </form>
-
-    <div class="m-3">
+    <div>
         Already have an account? <a href="{% url 'floral_jamming:login' event_id %}">Log In here.</a>
     </div>
 
