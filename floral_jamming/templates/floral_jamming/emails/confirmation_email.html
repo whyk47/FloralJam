@@ -1,0 +1,37 @@
+{% load templates %}
+{% comment %} TODO: Add floral jamming image here {% endcomment %}
+{% with attendee.event as event %}
+    <p>
+        Hi {{ attendee.user.first_name }}, thanks for registering for the floral jamming session! 
+        Your interest and participation in this event are greatly appreciated, 
+        and we are thrilled to have you join us.
+    </p>
+
+    <p>
+        Below are the details of your registration:
+            <ul>
+                <li>Event Name: {{ event.title }}</li>
+                <li>Date and Time: {{ event.time }}</li>
+                <li>Venue: {{ event.location }}</li>
+                <li>Pax registered: {{ attendee.pax }}</li>
+            </ul>
+    </p>
+
+    <p>
+        The cost of the registration is ${{ attendee.pax|multiply:event.price }} <span>&#40;</span>{{ event.price }}/pax<span>&#41;</span>.
+        To confirm your booking, please pay via paynow to 97472465 <span>&#40;</span>Hannah Flowers<span>&#41;</span>.
+    </p>
+
+    <p>For more information, you can contact us via phone 
+        <span>&#40;</span>97472465<span>&#41;</span> 
+        or email 
+        <span>&#40;</span>hannahflowersg@gmail.com<span>&#41;</span>
+    </p>
+
+    <p>
+        Thank you for your participation in our floral jamming session. 
+        We look forward to welcoming you and making this event a fun and enriching experience for you.
+    </p>
+
+    
+{% endwith %}

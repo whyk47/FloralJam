@@ -10,7 +10,6 @@ from .auth_service_exceptions import *
 from ..email_service.email_service import Email_Service
 
 
-# TODO: Add password reset functionality
 # TODO: Add alternative signin methods
 
 class Auth_Service(object):
@@ -20,7 +19,11 @@ class Auth_Service(object):
         return cls.instance
     
     def __init__(self):
-        self.email_service = Email_Service()
+        self._email_service = Email_Service()
+    
+    @property
+    def email_service(self):
+        return self._email_service
         
     @staticmethod
     def is_authenticated_user(user: User) -> bool:

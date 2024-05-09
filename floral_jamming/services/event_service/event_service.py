@@ -19,11 +19,11 @@ class Event_Service:
         self._auth_service = Auth_Service()
 
     @property
-    def auth_service(self):
+    def __auth_service(self):
         return self._auth_service
 
     def create_event(self, user: User, form: EventForm) -> Event:
-        auth_service = self.auth_service
+        auth_service = self.__auth_service
         if not auth_service.is_staff_user(user):
             raise Invalid_User_Type("Must be staff user to create event")
         data = get_data(form)
@@ -40,7 +40,7 @@ class Event_Service:
         event = self.get_event_by_id(event_id)
         if not event:
             raise Event_Does_Not_Exist("Event does not exist")
-        auth_service = self.auth_service
+        auth_service = self.__auth_service
         if not auth_service.is_staff_user(user):
             raise Invalid_User_Type("Must be staff user to create event")
         if not user == event.creator:
@@ -51,7 +51,7 @@ class Event_Service:
         return event
         
     def get_events(self, user: User) -> Optional[QuerySet]:
-        auth_service = self.auth_service
+        auth_service = self.__auth_service
         if auth_service.is_staff_user(user):
             try:
                 return user.events.filter(time__gte=datetime.now()).order_by('time')
@@ -66,7 +66,7 @@ class Event_Service:
             raise Event_Does_Not_Exist()
         
     def get_attendee(self, user: User, event: Event) -> Optional[Attendee]:
-        auth_service = self.auth_service
+        auth_service = self.__auth_service
         if auth_service.is_anonymous_user(user):
             return None
         return event.attendees.filter(user=user).first()
@@ -93,9 +93,8 @@ class Event_Service:
         if user_attendee and user_attendee.user != guest:
             raise Invalid_Form("Email already in use")
     
-    
     def create_or_update_user_attendee(self, user: User, event: Event, attendee_form: AttendeeForm) -> Attendee:
-        if not self.auth_service.is_authenticated_user(user):
+        if not self.__auth_service.is_authenticated_user(user):
             raise Invalid_User_Type("Must be authenticated user")
         data = get_data(attendee_form)
         pax = data['pax']
@@ -104,17 +103,16 @@ class Event_Service:
         return attendee
     
     def create_or_update_guest_attendee(self, user: User, event: Event, attendee_form: AttendeeForm, guest_form: GuestForm) -> Attendee:
-        if not self.auth_service.is_guest_user(user):
+        if not self.__auth_service.is_guest_user(user):
             raise Invalid_User_Type("Must be guest user")
-        # TODO: verify email before registering attendee
         attendee_data, guest_data = get_data(attendee_form), get_data(guest_form)
         self.__validate_guest_forms(user, event, attendee_data, guest_data)
-        self.auth_service.update_user_details(guest_data, user)
+        self.__auth_service.update_user_details(guest_data, user)
         attendee, created = event.attendees.update_or_create(user=user, defaults={**attendee_data})
         return attendee
     
     def delete_attendee(self, user: User, event: Event) -> None:
-        auth_service = self.auth_service
+        auth_service = self.__auth_service
         if auth_service.is_anonymous_user(user):
             raise Invalid_User_Type("Must be authenticated or guest user")
         attendee = self.get_attendee(user, event)
