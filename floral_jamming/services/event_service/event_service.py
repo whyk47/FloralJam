@@ -99,7 +99,12 @@ class Event_Service:
         data = get_data(attendee_form)
         pax = data['pax']
         self.__validate_pax(user, event, pax)
-        attendee, created = event.attendees.update_or_create(user=user, defaults={'pax': pax})
+        attendee, created = event.attendees.update_or_create(
+            user=user, 
+            defaults={
+                'pax': pax,
+                'is_email_verified': True,
+            })
         return attendee
     
     def create_or_update_guest_attendee(self, user: User, event: Event, attendee_form: AttendeeForm, guest_form: GuestForm) -> Attendee:
@@ -108,7 +113,12 @@ class Event_Service:
         attendee_data, guest_data = get_data(attendee_form), get_data(guest_form)
         self.__validate_guest_forms(user, event, attendee_data, guest_data)
         self.__auth_service.update_user_details(guest_data, user)
-        attendee, created = event.attendees.update_or_create(user=user, defaults={**attendee_data})
+        attendee, created = event.attendees.update_or_create(
+            user=user, 
+            defaults={
+                **attendee_data,
+                'is_email_verified': self.__auth_service.is_email_verified(user),
+                })
         return attendee
     
     def delete_attendee(self, user: User, event: Event) -> None:
@@ -119,6 +129,15 @@ class Event_Service:
         if not attendee:
             raise Attendee_Does_Not_Exist("Attendee does not exist")
         attendee.delete()
+
+    def set_email_verified(self, user: User) -> QuerySet:
+        self.__auth_service.set_email_verified(user)
+        attendees = self.get_user_attendees(user).filter(is_email_verified=False)
+        for attendee in attendees:
+            attendee.is_email_verified = True
+            attendee.save()
+        return attendees
+        
 
     
 

@@ -23,7 +23,7 @@ class Event(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
 
     def num_attendees(self) -> int:
-        return sum([attendee.pax for attendee in self.attendees.filter(user__is_email_verified=True)])
+        return sum([attendee.pax for attendee in self.attendees.filter(is_email_verified=True)])
     
     def remaining_slots(self) -> int:
         return self.capacity - self.num_attendees()
@@ -32,6 +32,7 @@ class Attendee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attendees", null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
     pax = models.IntegerField(validators=[MinValueValidator(1)])
+    is_email_verified = models.BooleanField(default=False)
 
 class EmailConfirmationToken(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)

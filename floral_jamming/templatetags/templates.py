@@ -2,6 +2,7 @@ from django.template import Library
 
 from ..services.auth_service.auth_service import Auth_Service
 from ..services.event_service.event_service import Event_Service
+from ..util import multiply
 
 
 register = Library()
@@ -12,4 +13,4 @@ is_anonymous_user = register.filter(Auth_Service.is_anonymous_user)
 is_staff_user = register.filter(Auth_Service.is_staff_user)
 is_email_verified = register.filter(Auth_Service.is_email_verified)
 get_pax = register.filter(Event_Service.get_pax)
-multiply = register.filter(lambda x, y: x * y)
+multiply = register.filter(multiply)

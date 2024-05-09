@@ -22,7 +22,7 @@ class Auth_Service(object):
         self._email_service = Email_Service()
     
     @property
-    def email_service(self):
+    def __email_service(self):
         return self._email_service
         
     @staticmethod
@@ -123,10 +123,11 @@ class Auth_Service(object):
         return new_user
         
     def set_email_verified(self, user: User) -> None:
+        # ! incomplete implementation. use event_service.set_email_verified instead
         user.is_active = True
         user.is_email_verified = True
         user.save()
-        self.email_service.delete_tokens(user)
+        self.__email_service.delete_tokens(user)
 
     def request_password_reset(self, form: ForgotPasswordForm) -> User:
         data = get_data(form)
@@ -146,4 +147,4 @@ class Auth_Service(object):
             raise Invalid_Form("Passwords do not match")
         user.set_password(data['password'])
         user.save()
-        self.email_service.delete_tokens(user)
+        self.__email_service.delete_tokens(user)

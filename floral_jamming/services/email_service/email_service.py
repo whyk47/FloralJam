@@ -25,7 +25,7 @@ class Email_Service:
     def delete_tokens(self, user: User) -> None:
         user.email_tokens.all().delete()
 
-    def __send_email(user: User, subject:str, html_message: str) -> None:
+    def __send_email(self, user: User, subject: str, html_message: str) -> None:
         send_mail(
             subject=subject,
             message='',
@@ -35,9 +35,9 @@ class Email_Service:
             html_message=html_message
         )
         
-    def __render_email_template(template: str, context: dict) -> str:
+    def __render_email_template(self, template: str, context: dict) -> str:
         email_template = get_template(f'floral_jamming/emails/{template}.html')
-        return email_template.render(context)
+        return email_template.render(context=context)
     
     def send_verification_email(self, user: User, page: str, host: str) -> None:
         if user.num_valid_tokens() > 2:
@@ -45,6 +45,7 @@ class Email_Service:
         token = self.__new_token(user)
         url = host + reverse(f'floral_jamming:{page}', args=[user.id, token.id])
         message = self.__render_email_template('verification_email', {'url': url})
+        print(message)
         self.__send_email(
             user=user,
             subject='Floral Jamming - Verify Email',

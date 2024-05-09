@@ -18,8 +18,9 @@
     </p>
 
     <p>
-        The cost of the registration is ${{ attendee.pax|multiply:event.price }} <span>&#40;</span>{{ event.price }}/pax<span>&#41;</span>.
+        The cost of the registration is ${{ attendee.pax|multiply:event.price }} <span>&#40;</span>${{ event.price }}/pax<span>&#41;</span>.
         To confirm your booking, please pay via paynow to 97472465 <span>&#40;</span>Hannah Flowers<span>&#41;</span>.
+        {% comment %} TODO: add paynow qr code {% endcomment %}
     </p>
 
     <p>For more information, you can contact us via phone 
@@ -30,7 +31,7 @@
 
     <p>
         Thank you for your participation in our floral jamming session. 
-        We look forward to welcoming you and making this event a fun and enriching experience for you.
+        We look forward to making this event a fun and enriching experience for you.
     </p>
 
     

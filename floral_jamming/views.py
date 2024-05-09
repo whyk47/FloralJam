@@ -172,7 +172,7 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
           })
      
 @allow_guest_user
-def email_verified(request: HttpRequest, user_id: int, token_id: str, event_id: int = 0) -> HttpResponse:
+def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpResponse:
      message = None
      try:
           user = auth_service.get_user_by_id(user_id)
@@ -182,10 +182,8 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str, event_id: 
                })
           token = email_serivce.get_token_by_id(token_id)
           email_serivce.verify_email_token(user, token)
-          auth_service.set_email_verified(user)
-          if auth_service.is_guest_user(user) and event_id > 0:
-               event = event_service.get_event_by_id(event_id)
-               attendee = event_service.get_attendee(user, event)
+          attendees = event_service.set_email_verified(user)
+          for attendee in attendees:
                email_serivce.send_confirmation_email(attendee, request.get_host())
      except (Invalid_Token, User_Does_Not_Exist) as e:
           message = e
