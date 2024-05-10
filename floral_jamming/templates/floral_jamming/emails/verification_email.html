@@ -1,3 +1,6 @@
-<div>Please click on the following link to verify your email</div>
+{% load templates %}
+{% load static %}
+
+<div>Please click on the following link to {{ user|is_authenticated_user|yesno:"reset your password,verify your email" }}:</div>
 
 {{ url }}

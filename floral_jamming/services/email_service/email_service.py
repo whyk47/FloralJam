@@ -44,11 +44,13 @@ class Email_Service:
             raise Too_Many_Attempts("You have exceeded the maximum number of email requests. Please try again later.")
         token = self.__new_token(user)
         url = host + reverse(f'floral_jamming:{page}', args=[user.id, token.id])
-        message = self.__render_email_template('verification_email', {'url': url})
-        print(message)
+        message = self.__render_email_template('verification_email', {
+            'url': url,
+            'user': user
+            })
         self.__send_email(
             user=user,
-            subject='Floral Jamming - Verify Email',
+            subject=f'Floral Jamming - {"Reset Password" if user.is_email_verified else "Verify Email"}',
             html_message=message,
         )
     

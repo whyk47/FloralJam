@@ -178,7 +178,8 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
           user = auth_service.get_user_by_id(user_id)
           if auth_service.is_authenticated_user(user):
                return render(request, "floral_jamming/outcome.html", {
-                    'success_message': "Your email has been verified!"
+                    'success_message': "Your email has been verified!",
+                    'user': user,
                })
           token = email_serivce.get_token_by_id(token_id)
           email_serivce.verify_email_token(user, token)
@@ -189,7 +190,8 @@ def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
           message = e
      return render(request, "floral_jamming/outcome.html", {
           'message': message,
-          'success_message': "Your email has been verified!"
+          'success_message': "Your email has been verified!",\
+          'user': user,
      })
 
 @allow_guest_user
@@ -246,7 +248,8 @@ def reset_password(request: HttpRequest, user_id: int, token_id: str) -> HttpRes
           try:
                auth_service.reset_password(user, form)
                return render(request, "floral_jamming/outcome.html", {
-                    "success_message": "Your Password has been reset!"
+                    "success_message": "Your Password has been reset!",
+                    "user": user,
                })
           except Invalid_Form as e:
                message = e

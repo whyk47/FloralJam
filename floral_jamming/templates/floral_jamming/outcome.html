@@ -8,4 +8,9 @@
     {% else %}
         <h4 class="text-center text-success">{{ success_message }}</h4>
     {% endif %}
+    {% if user|is_authenticated_user %}
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'floral_jamming:login' %}">Proceed to Login</a>
+        </div>
+    {% endif %}
 {% endblock %}
