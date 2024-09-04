@@ -11,3 +11,4 @@ def get_data(form, exception=Invalid_Form, message=None) -> dict:
     
 def multiply(x: int, y: int) -> int:
     return x * y
+

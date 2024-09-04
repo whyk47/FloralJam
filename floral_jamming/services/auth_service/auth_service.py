@@ -1,4 +1,3 @@
-from typing import Optional
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from guest_user.functions import is_guest_user
