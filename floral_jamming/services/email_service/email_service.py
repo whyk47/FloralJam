@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.urls import reverse
+from multiprocessing import Process
 
 from ...models import Attendee, EmailConfirmationToken, User
 
@@ -25,7 +26,6 @@ class Email_Service:
         user.email_tokens.all().delete()
 
     def __send_email(self, user: User, subject: str, html_message: str) -> None:
-        
         send_mail(
             subject=subject,
             message='',

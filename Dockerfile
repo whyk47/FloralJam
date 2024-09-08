@@ -12,4 +12,4 @@ ENV EMAIL_ID=hannahflowersg@gmail.com EMAIL_PW=psvidztuoloupxqh
 
 COPY . .
 
-CMD python manage.py runserver 0.0.0.0:8000
+CMD python manage.py runserver 0.0.0.0:8080
