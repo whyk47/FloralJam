@@ -40,12 +40,12 @@ def create(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRespon
           except Invalid_Form as e:
                return render(request, "floral_jamming/create.html", {
                     "message": e,
-                    "forms": [form],
+                    "form": [form],
                     "event": event,
                })
      else:
           return render(request, "floral_jamming/create.html", {
-               "forms": [EventForm(instance=event)],
+               "form": [EventForm(instance=event)],
                "event": event,
           })
 

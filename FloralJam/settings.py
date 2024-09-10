@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv, dotenv_values
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -139,7 +142,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 # ! Remember to set environment variables when deploying to web server
-EMAIL_HOST_USER = os.environ.get('EMAIL_ID') 
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PW')
-DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_ID')
-
+EMAIL_HOST_USER = os.getenv('EMAIL_ID') 
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PW')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_ID')
