@@ -1,6 +1,8 @@
 FROM python:3.12-bullseye
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1 \
+    EMAIL_ID='hannahflowersg@gmail.com' \
+    EMAIL_PW='psvidztuoloupxqh'
 
 WORKDIR /app
 
