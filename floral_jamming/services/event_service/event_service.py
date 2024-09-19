@@ -90,7 +90,7 @@ class Event_Service:
         self.__validate_pax(guest, event, attendee_data['pax'])        
         
         user_attendee = event.attendees.filter(user__email=guest_data['email']).first()
-        if user_attendee and user_attendee.user != guest:
+        if (user_attendee and user_attendee.user != guest) or guest_data['email'] == event.creator.email:
             raise Invalid_Form("Email already in use")
     
     def create_or_update_user_attendee(self, user: User, event: Event, attendee_form: AttendeeForm) -> Attendee:

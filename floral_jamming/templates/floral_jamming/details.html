@@ -32,8 +32,8 @@
             {% comment %} TODO: Allow creator to remove attendees {% endcomment %}
             {% for attendee in event.attendees.all %}
                 <div class="card p-2">
-                    <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }}</div>
-                    <div class="card-text">{{ attendee.user.email }}</div> 
+                    <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)</div>
+                    <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
                 </div>
             {% empty %}
                 <h5>No Attendees Yet</h5>
