@@ -5,5 +5,7 @@ services:
   ports:
    - 8080:8080
   image: yk47/floral_jamming:FloralJam
+  env_file:
+   - .env
   container_name: FloralJam
   command: python manage.py runserver 0.0.0.0:8080

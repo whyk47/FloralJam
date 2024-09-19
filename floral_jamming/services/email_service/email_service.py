@@ -48,11 +48,14 @@ class Email_Service:
             'url': url,
             'user': user
             })
-        self.__send_email(
-            user=user,
-            subject=f'Floral Jamming - {"Reset Password" if user.is_email_verified else "Verify Email"}',
-            html_message=message,
-        )
+        try:
+            self.__send_email(
+                user=user,
+                subject=f'Floral Jamming - {"Reset Password" if user.is_email_verified else "Verify Email"}',
+                html_message=message,
+            )
+        except Exception as e:
+            raise UNABLE_TO_SEND_EMAIL(f"Failed to send email: {e}")
     
     def verify_email_token(self, user: User, token: EmailConfirmationToken) -> None:
         if token.is_expired():

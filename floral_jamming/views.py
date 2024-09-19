@@ -57,6 +57,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 @allow_guest_user
 def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseRedirect:
+     print(request)
      event = event_service.get_event_by_id(event_id)
      attendee = event_service.get_attendee(user=request.user, event=event)
      if request.method == "POST":
@@ -69,7 +70,7 @@ def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseR
                          return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[request.user.id, "email_verified", event_id]))
                     else:
                          email_serivce.send_confirmation_email(attendee, request.get_host())
-               except Invalid_Form as e:
+               except (Invalid_Form, UNABLE_TO_SEND_EMAIL) as e:
                     return render(request, 'floral_jamming/sign_up.html', {
                          'attendee': attendee,
                          'event': event,

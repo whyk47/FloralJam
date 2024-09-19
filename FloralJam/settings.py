@@ -151,3 +151,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_ID') 
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PW')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_ID')
+
+CSRF_TRUSTED_ORIGINS = ['https://*.ap-southeast-1.awsapprunner.com','https://*.127.0.0.1']
