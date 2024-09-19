@@ -54,7 +54,6 @@ class Event_Service:
         auth_service = self.__auth_service
         if auth_service.is_staff_user(user):
             try:
-                print(user.events.filter(time__gte=datetime.now()).order_by('time'))
                 return user.events.filter(time__gte=datetime.now()).order_by('time')
             except Event.DoesNotExist:
                 return None

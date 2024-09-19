@@ -57,7 +57,6 @@ def index(request: HttpRequest) -> HttpResponse:
 
 @allow_guest_user
 def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseRedirect:
-     print(request)
      event = event_service.get_event_by_id(event_id)
      attendee = event_service.get_attendee(user=request.user, event=event)
      if request.method == "POST":

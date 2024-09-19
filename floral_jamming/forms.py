@@ -32,13 +32,18 @@ class EventForm(forms.ModelForm):
         fields = ['title', 'time', 'location', 'description', 'capacity', 'price']
         widgets = {
             'time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'description': forms.Textarea(),
-            'capacity': forms.NumberInput(attrs={'min': 0}),
-            'price': forms.NumberInput(attrs={'min': 0}),
+            'description': forms.Textarea(attrs={'rows': 5}),
         }
-        labels = {
-            'price': 'Price ($)',
-        }
+    def __init__(self, *args, **kwargs):
+        super(EventForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.required = True
+            field.widget.attrs['placeholder'] = field_name.capitalize()
+            field.label = ''
+        self.fields['price'].widget.attrs['placeholder'] = 'Price ($)'
+        self.fields['price'].widget.attrs['min'] = 0
+        self.fields['capacity'].widget.attrs['min'] = 0
+
 
 class AttendeeForm(forms.ModelForm):
     class Meta:

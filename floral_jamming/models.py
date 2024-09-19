@@ -15,11 +15,11 @@ class User(AbstractUser):
 
 class Event(models.Model):
     title = models.CharField(max_length=100)
-    price = models.IntegerField(validators=[MinValueValidator(0)], default=80)
+    price = models.IntegerField(validators=[MinValueValidator(0)])
     time = models.DateTimeField()
     location = models.CharField(max_length=300)
     description = models.CharField(max_length=3000)
-    capacity = models.IntegerField(validators=[MinValueValidator(0)], default=10)
+    capacity = models.IntegerField(validators=[MinValueValidator(0)])
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
 
     def num_attendees(self) -> int:
