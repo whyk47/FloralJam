@@ -7,6 +7,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class User(AbstractUser):
     is_email_verified = models.BooleanField(default=False)
+    
     def num_valid_tokens(self) -> int:
         for token in self.email_tokens.all():
             if token.is_expired():

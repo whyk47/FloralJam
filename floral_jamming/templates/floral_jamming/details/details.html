@@ -4,16 +4,7 @@
 
 {% block body %}
     {% if attendee %}
-
-        {% if user|is_email_verified %}
-            {% with callout_text="You've signed up for this event! ("|addstr:attendee.pax|addstr:" pax)" %}
-                {% include 'floral_jamming/components/callout.html' %}
-            {% endwith %}
-        {% else %}
-            {% with callout_text="We have sent a verification email to "|addstr:user.email|addstr:". Please click the link to confirm your registration." %}
-                {% include 'floral_jamming/components/callout.html' with bg_colour="info" %}
-            {% endwith %}
-        {% endif %}
+        {% include 'floral_jamming/details/registration_callout.html' %}
     {% endif %}
     
     {% include 'floral_jamming/details/event_details.html' %}

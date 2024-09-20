@@ -8,20 +8,13 @@
     {% if message %}
         <div class='text-danger'>{{ message }}</div>
     {% endif %}
+
     {% if event %}
-        {% url 'floral_jamming:create' event.id as url %}
+        {% url 'floral_jamming:create' event.id as form_url %}
     {% else %}
-        {% url 'floral_jamming:create' as url %}
-    {% endif %}
-    <form action="{{ url }}" method="post">
-        {% csrf_token %}
-            {% for field in form %}
-                <div class="my-2">
-                    {{ field }}
-                </div>
-            {% endfor %} 
-        <button type="submit" class="btn btn-success">Save Event</button>
-    </form>
+        {% url 'floral_jamming:create' as form_url %}
+    {% endif %} 
+    {% include 'floral_jamming/components/form.html' with button_label="Save Event" %}
 {% endblock %} 
 
 {% block script %}

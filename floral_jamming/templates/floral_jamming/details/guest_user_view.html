@@ -2,15 +2,15 @@
 
 {% if attendee %}
 
-    {% url 'floral_jamming:sign_up' event.id as link_btn_url %}
-    {% include 'floral_jamming/components/link_btn.html' with button_label="Edit Registration" button_color="secondary" %}
+    {% url 'floral_jamming:sign_up' event.id as btn_url %}
+    {% include 'floral_jamming/components/link_btn.html' with button_label="Edit Registration" button_colour="secondary" %}
 
 {% else %}
 
-    {% url 'floral_jamming:login' event.id as link_btn_url %}
+    {% url 'floral_jamming:login' event.id as btn_url %}
     {% include 'floral_jamming/components/link_btn.html' with button_label="Log In to Register" %}
 
-    {% url 'floral_jamming:sign_up' event.id as link_btn_url %}
-    {% include 'floral_jamming/components/link_btn.html' with button_label="Register as Guest" button_color="secondary" %}
+    {% url 'floral_jamming:sign_up' event.id as btn_url %}
+    {% include 'floral_jamming/components/link_btn.html' with button_label="Register as Guest" button_colour="secondary" %}
 
 {% endif %}

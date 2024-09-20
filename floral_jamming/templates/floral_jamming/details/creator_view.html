@@ -9,8 +9,8 @@
         <div class="card p-2">
             <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)</div>
             <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
-            {% url 'floral_jamming:remove_attendee' attendee.id as button_url %}
-            {% include 'floral_jamming/components/button.html' with button_label="Remove" button_color="danger" %}
+            {% url 'floral_jamming:remove_attendee' attendee.id as btn_url %}
+            {% include 'floral_jamming/components/button.html' with button_label="Remove" button_colour="danger" %}
         </div>
     {% empty %}
         <h5>No Attendees Yet</h5>

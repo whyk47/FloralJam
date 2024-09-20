@@ -15,20 +15,20 @@
                 activate your account.
             {% endif %}
         </div>
-        <div class="text-center text-danger m-2">{{ message|default:"" }}</div>    
+        <div class="text-center text-danger m-2">{{ message|default:"" }}</div>
+
         <div class="d-flex justify-content-center">
-            <a href="{% url 'floral_jamming:verify_email' user.id event_id as url %}" class="m-2">
-                <button class="btn btn-primary">Resend Email</button>
-            </a>
+            
+            {% include 'floral_jamming/components/button.html' with button_label="Resend Email" button_colour="primary" %}
+
             {% if not user|is_guest_user %}
-                <a href="{% url "floral_jamming:login" event_id %}" class="m-2">
-                    <button class="btn btn-success">Go to Login</button>
-                </a>
+                {% url "floral_jamming:login" event_id as btn_url %}
+                {% include 'floral_jamming/components/link_btn.html' with button_label="Go to Login" %}
             {% endif %}
+
             {% if event_id > 0 %}
-                <a href="{% url "floral_jamming:details" event_id %}" class="m-2">
-                    <button class="btn btn-secondary">Back to event</button>
-                </a>
+                {% url "floral_jamming:details" event_id as btn_url %}
+                {% include 'floral_jamming/components/link_btn.html' with button_label="Back to event" button_colour="secondary" %}
             {% endif %}
             
         </div>

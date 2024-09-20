@@ -1,0 +1,20 @@
+{% extends 'floral_jamming/layout.html' %} 
+{% load static %} 
+
+{% block body %}
+    {% if attendee %}
+        {% include 'floral_jamming/components/form.html' with title='Edit Registration' button_label='Update' %}
+
+        {% url 'floral_jamming:cancel_sign_up' event.id as btn_url %}
+        {% include 'floral_jamming/components/button.html' with button_colour='danger' button_label='Unregister' %}
+    {% else %}
+        {% include 'floral_jamming/components/form.html' with title='Register as Guest' button_label='Register' %}
+
+        {% url 'floral_jamming:details' event.id as btn_url %}
+        {% include 'floral_jamming/components/link_btn.html' with button_colour='danger' button_label='Cancel Registration' %}
+    {% endif %}
+
+{% endblock %}
+
+{% block script %}
+{% endblock %}

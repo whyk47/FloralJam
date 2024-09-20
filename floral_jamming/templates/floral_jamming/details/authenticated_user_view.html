@@ -4,8 +4,8 @@
 
 {% include 'floral_jamming/components/form.html' with button_label="Update Registration" %}
 
-    {% url 'floral_jamming:cancel_sign_up' event.id as button_url %}
-    {% include 'floral_jamming/components/button.html' with button_label="Cancel Registration" button_color="danger" %}
+    {% url 'floral_jamming:cancel_sign_up' event.id as btn_url %}
+    {% include 'floral_jamming/components/button.html' with button_label="Cancel Registration" button_colour="danger" %}
 
 {% else %}
 

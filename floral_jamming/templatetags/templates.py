@@ -2,8 +2,6 @@ from django.template import Library
 
 from ..services.auth_service.auth_service import Auth_Service
 from ..services.event_service.event_service import Event_Service
-from ..util import multiply
-
 
 register = Library()
 
