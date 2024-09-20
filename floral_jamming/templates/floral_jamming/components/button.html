@@ -1,0 +1,8 @@
+{% load templates %}
+
+<form action="{{ button_url }}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-{{ button_color|default:'success' }} mb-2">
+        {{ button_label|default:"Submit"}}
+    </button>
+</form>

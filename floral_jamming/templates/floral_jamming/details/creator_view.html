@@ -1,0 +1,18 @@
+{% load templates %}
+
+<a href="{% url 'floral_jamming:create' event.id %}">
+    <button class="btn btn-secondary">Edit Event</button>
+</a>
+<h3>Attendees:</h3>
+<div>
+    {% for attendee in event.attendees.all %}
+        <div class="card p-2">
+            <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)</div>
+            <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
+            {% url 'floral_jamming:remove_attendee' attendee.id as button_url %}
+            {% include 'floral_jamming/components/button.html' with button_label="Remove" button_color="danger" %}
+        </div>
+    {% empty %}
+        <h5>No Attendees Yet</h5>
+    {% endfor %}
+</div>

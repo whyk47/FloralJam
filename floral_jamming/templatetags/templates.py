@@ -13,4 +13,12 @@ is_anonymous_user = register.filter(Auth_Service.is_anonymous_user)
 is_staff_user = register.filter(Auth_Service.is_staff_user)
 is_email_verified = register.filter(Auth_Service.is_email_verified)
 get_pax = register.filter(Event_Service.get_pax)
-multiply = register.filter(multiply)
+
+@register.filter
+def multiply(x: int, y: int) -> int:
+    return x * y
+
+@register.filter
+def addstr(arg1, arg2):
+    """concatenate arg1 & arg2"""
+    return str(arg1) + str(arg2)

@@ -1,0 +1,32 @@
+{% extends 'floral_jamming/layout.html' %} 
+{% load static %} 
+{% load templates %}
+
+{% block body %}
+    {% if attendee %}
+
+        {% if user|is_email_verified %}
+            {% with callout_text="You've signed up for this event! ("|addstr:attendee.pax|addstr:" pax)" %}
+                {% include 'floral_jamming/components/callout.html' %}
+            {% endwith %}
+        {% else %}
+            {% with callout_text="We have sent a verification email to "|addstr:user.email|addstr:". Please click the link to confirm your registration." %}
+                {% include 'floral_jamming/components/callout.html' with bg_colour="info" %}
+            {% endwith %}
+        {% endif %}
+    {% endif %}
+    
+    {% include 'floral_jamming/details/event_details.html' %}
+
+    {% if user|is_staff_user and user == event.creator %}
+        {% include 'floral_jamming/details/creator_view.html' %}
+    {% elif user|is_authenticated_user %}
+        {% include 'floral_jamming/details/authenticated_user_view.html' %}
+    {% else %}
+        {% include 'floral_jamming/details/guest_user_view.html' %}
+    {% endif %}
+
+{% endblock %} 
+
+{% block script %}
+{% endblock%}

@@ -1,7 +1,7 @@
 {% extends "floral_jamming/layout.html" %} 
 {% block body %}
 
-{% url 'floral_jamming:login' event_id as submit_url %}
+{% url 'floral_jamming:login' event_id as form_url %}
 {% include "floral_jamming/components/form.html" with title="Login" button_label="Login" %}
 
 <div>

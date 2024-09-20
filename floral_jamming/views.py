@@ -117,7 +117,7 @@ def details(request: HttpRequest, event_id: int) -> HttpResponse:
                email_serivce.send_confirmation_email(attendee, request.get_host())
           except Invalid_Form as e:
                msg = e
-     return render(request, 'floral_jamming/details.html', {
+     return render(request, 'floral_jamming/details/details.html', {
           'event': event,
           'attendee': attendee,
           'forms': [attendee_form],

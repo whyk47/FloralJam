@@ -3,7 +3,7 @@
 <h2 class="mb-3">{{ title }}</h2>
 
 <div class="text-danger">{{ message|default:'' }}</div>
-<form action="{{ submit_url }}" method="post">
+<form action="{{ form_url }}" method="post">
     {% csrf_token %}
     <div class="form-group">
         {% for form in forms %}
