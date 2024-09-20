@@ -29,11 +29,16 @@
         </a>
         <h3>Attendees:</h3>
         <div>
-            {% comment %} TODO: Allow creator to remove attendees {% endcomment %}
             {% for attendee in event.attendees.all %}
                 <div class="card p-2">
                     <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)</div>
                     <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
+                    <form action="{% url 'floral_jamming:remove_attendee' attendee.id %}" method="post">
+                        {% csrf_token %}
+                        <button class='btn btn-danger' type="submit">
+                            Remove
+                        </button>
+                    </form>
                 </div>
             {% empty %}
                 <h5>No Attendees Yet</h5>
@@ -64,45 +69,6 @@
                 <button class='btn btn-secondary my-2'>Register as Guest</button>
             </a> 
         {% endif %}
-        {% comment %} TODO: Move form to modal display {% endcomment %}
-        <!-- Button trigger modal -->
-        {% comment %} <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#guestSignUpModal">
-            Register as Guest
-        </button> {% endcomment %}
-
-        <!-- Modal -->
-        <div class="modal fade" id="guestSignUpModal" tabindex="-1" role="dialog" aria-labelledby="guestSignUpModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="guestSignUpModalLabel">Register As Guest</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        {% if message %}
-                            <div class="text-danger">{{ message }}</div>
-                        {% endif %}
-                        <form >
-                            {% csrf_token %}
-                            <div class="form-group m-2">
-                                {% for field in form %}
-                                    <div class="form-row my-2">
-                                        {{ field }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-success">Register</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
     {% endif %}
 
 {% endblock %} 

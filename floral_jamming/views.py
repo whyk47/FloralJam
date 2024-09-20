@@ -89,8 +89,18 @@ def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseR
 @allow_guest_user
 def cancel_sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseRedirect:
      if request.method == "POST":
-          event=event_service.get_event_by_id(event_id)
+          event = event_service.get_event_by_id(event_id)
           event_service.delete_attendee(user=request.user, event=event)
+          return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+     raise Invalid_Http_Request('Deletion must be done by POST request')
+
+@staff_member_required
+def remove_attendee(request: HttpRequest, attendee_id: int) -> HttpResponse | HttpResponseRedirect:
+     if request.method == "POST":
+          # TODO send email to removed attendee
+          attendee = event_service.get_attendee_by_id(attendee_id)
+          event_id = attendee.event.id
+          event_service.delete_attendee_by_id(attendee_id)
           return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
      raise Invalid_Http_Request('Deletion must be done by POST request')
 

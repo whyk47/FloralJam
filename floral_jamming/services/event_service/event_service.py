@@ -71,6 +71,12 @@ class Event_Service:
             return None
         return event.attendees.filter(user=user).first()
     
+    def get_attendee_by_id(self, attendee_id: int) -> Attendee:
+        try:
+            return Attendee.objects.get(id=attendee_id)
+        except Attendee.DoesNotExist:
+            raise Attendee_Does_Not_Exist()
+    
     @staticmethod
     def get_pax(user: User, event: Event) -> int:
         if user.is_anonymous:
@@ -128,6 +134,10 @@ class Event_Service:
         attendee = self.get_attendee(user, event)
         if not attendee:
             raise Attendee_Does_Not_Exist("Attendee does not exist")
+        attendee.delete()
+
+    def delete_attendee_by_id(self, attendee_id: int) -> None:
+        attendee = self.get_attendee_by_id(attendee_id)
         attendee.delete()
 
     def set_email_verified(self, user: User) -> QuerySet:
