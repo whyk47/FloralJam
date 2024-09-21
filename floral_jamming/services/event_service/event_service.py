@@ -65,6 +65,11 @@ class Event_Service:
         except Event.DoesNotExist:
             raise Event_Does_Not_Exist()
         
+    def delete_event_by_id(self, event_id: int) -> None:
+        # TODO: email participants
+        event = self.get_event_by_id(event_id)
+        event.delete()
+        
     def get_attendee(self, user: User, event: Event) -> Optional[Attendee]:
         auth_service = self.__auth_service
         if auth_service.is_anonymous_user(user):

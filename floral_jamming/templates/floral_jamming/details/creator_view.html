@@ -1,8 +1,8 @@
 {% load templates %}
 
-<a href="{% url 'floral_jamming:create' event.id %}">
-    <button class="btn btn-secondary">Edit Event</button>
-</a>
+{% url 'floral_jamming:create' event.id as btn_url %}
+{% include 'floral_jamming/components/link_btn.html' with button_label="Edit Event" button_colour="secondary" %}
+
 <h3>Attendees:</h3>
 <div>
     {% for attendee in page %}

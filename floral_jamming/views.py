@@ -43,11 +43,10 @@ def create(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRespon
                     "forms": [form],
                     "event": event,
                })
-     else:
-          return render(request, "floral_jamming/create.html", {
-               "forms": [EventForm(instance=event)],
-               "event": event,
-          })
+     return render(request, "floral_jamming/create.html", {
+          "forms": [EventForm(instance=event)],
+          "event": event,
+     })
 
 @allow_guest_user
 def index(request: HttpRequest) -> HttpResponse:
@@ -97,13 +96,20 @@ def cancel_sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpRe
      raise Invalid_Http_Request('Deletion must be done by POST request')
 
 @staff_member_required
-def remove_attendee(request: HttpRequest, attendee_id: int) -> HttpResponse | HttpResponseRedirect:
+def remove_attendee(request: HttpRequest, attendee_id: int) -> HttpResponseRedirect:
      if request.method == "POST":
           # TODO send email to removed attendee
           attendee = event_service.get_attendee_by_id(attendee_id)
           event_id = attendee.event.id
           event_service.delete_attendee_by_id(attendee_id)
           return HttpResponseRedirect(reverse("floral_jamming:details", args=[event_id]))
+     raise Invalid_Http_Request('Deletion must be done by POST request')
+
+@staff_member_required
+def delete_event(request: HttpRequest, event_id: int) -> HttpResponseRedirect:
+     if request.method == "POST":
+          event_service.delete_event_by_id(event_id)
+          return HttpResponseRedirect(reverse("floral_jamming:index"))
      raise Invalid_Http_Request('Deletion must be done by POST request')
 
 @allow_guest_user
@@ -151,11 +157,10 @@ def login_view(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRe
                new_user = auth_service.get_user_by_username(username)
                return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[new_user.id, "email_verified", event_id]))
 
-     else:
-          return render(request, "floral_jamming/auth/login.html", {
-               "event_id": event_id,
-               "forms": [LoginForm()],
-          })
+     return render(request, "floral_jamming/auth/login.html", {
+          "event_id": event_id,
+          "forms": [LoginForm()],
+     })
      
 
 @allow_guest_user
@@ -183,11 +188,10 @@ def register(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpResp
                          "event_id": event_id,
                          "forms": [form],
                     })
-     else:
-          return render(request, "floral_jamming/auth/register.html", {
-               "forms": [UserForm()],
-               "event_id": event_id,
-          })
+     return render(request, "floral_jamming/auth/register.html", {
+          "forms": [UserForm()],
+          "event_id": event_id,
+     })
      
 @allow_guest_user
 def email_verified(request: HttpRequest, user_id: int, token_id: str) -> HttpResponse:

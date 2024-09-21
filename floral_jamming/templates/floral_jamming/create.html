@@ -15,6 +15,9 @@
         {% url 'floral_jamming:create' as form_url %}
     {% endif %} 
     {% include 'floral_jamming/components/form.html' with button_label="Save Event" %}
+
+    {% url 'floral_jamming:delete_event' event.id as btn_url %}
+    {% include 'floral_jamming/components/button.html' with button_label="Delete Event" button_colour="danger"%}
 {% endblock %} 
 
 {% block script %}
