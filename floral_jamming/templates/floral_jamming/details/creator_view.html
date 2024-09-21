@@ -5,7 +5,7 @@
 </a>
 <h3>Attendees:</h3>
 <div>
-    {% for attendee in event.attendees.all %}
+    {% for attendee in page %}
         <div class="card p-2">
             <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)</div>
             <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
@@ -15,4 +15,6 @@
     {% empty %}
         <h5>No Attendees Yet</h5>
     {% endfor %}
+
+    {% include 'floral_jamming/components/pagination.html' %}
 </div>

@@ -12,12 +12,14 @@
         <h1 class="my-3">Upcoming Events</h1>
     {% endif %}
     
-    {% comment %} TODO: Add pagination {% endcomment %}
-    {% for event in events %}
+    {% for event in page %}
         {% include 'floral_jamming/index/event_card.html' %}
     {% empty %}
         <h3 class="my-2">No events yet</h3>
     {% endfor %}
+
+    {% include 'floral_jamming/components/pagination.html' %}
+
 {% endblock %} 
 
 {% block script %}

@@ -40,7 +40,6 @@ class Email_Service:
         return email_template.render(context=context)
     
     def send_verification_email(self, user: User, page: str, host: str) -> None:
-        # ! Throws error if signing in before verifying email
         if user.num_valid_tokens() > 2:
             raise Too_Many_Attempts("You have exceeded the maximum number of email requests. Please try again later.")
         token = self.__new_token(user)

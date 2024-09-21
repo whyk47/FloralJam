@@ -51,8 +51,10 @@ def create(request: HttpRequest, event_id: int = 0) -> HttpResponse | HttpRespon
 
 @allow_guest_user
 def index(request: HttpRequest) -> HttpResponse:
+     events = event_service.get_events(request.user)
+     page = get_page(request, events)
      return render(request, 'floral_jamming/index/index.html', {
-          'events': event_service.get_events(request.user),
+          'page': page,
      })
 
 @allow_guest_user
@@ -117,8 +119,10 @@ def details(request: HttpRequest, event_id: int) -> HttpResponse:
                email_serivce.send_confirmation_email(attendee, request.get_host())
           except Invalid_Form as e:
                msg = e
+     page = get_page(request, event.attendees.all())
      return render(request, 'floral_jamming/details/details.html', {
           'event': event,
+          'page': page,
           'attendee': attendee,
           'forms': [attendee_form],
           'message': msg

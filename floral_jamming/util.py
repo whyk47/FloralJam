@@ -1,7 +1,13 @@
+from django.core.paginator import Paginator, Page
+from django.forms import Form, ModelForm
+from django.http import HttpRequest
+from typing import Optional, Iterable
+
+
 class Invalid_Form(Exception):
     pass
 
-def get_data(form, exception=Invalid_Form, message=None) -> dict:
+def get_data(form: Form | ModelForm, exception: Exception=Invalid_Form, message: Optional[str]=None) -> dict:
     if form.is_valid():
         return form.cleaned_data
     else:
@@ -9,3 +15,8 @@ def get_data(form, exception=Invalid_Form, message=None) -> dict:
             raise exception(message)
         raise exception(form.errors)
 
+def get_page(request: HttpRequest, objects: Iterable) -> Page:
+    paginator = Paginator(objects, 10)
+    page_no = request.GET.get("page")
+    page = paginator.get_page(page_no)
+    return page
