@@ -1,8 +1,10 @@
 {% load templates %}
 {% comment %} TODO: Add floral jamming image here {% endcomment %}
 {% with attendee.event as event %}
+    <p> Hi {{ attendee.user.first_name }},</p>
+    
     <p>
-        Hi {{ attendee.user.first_name }}, thanks for registering for the floral jamming session! 
+        Thanks for registering for the floral jamming session! 
         Your interest and participation in this event are greatly appreciated, 
         and we are thrilled to have you join us.
     </p>

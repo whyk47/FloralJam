@@ -4,6 +4,7 @@ from django.db.models.query import QuerySet
 
 from .event_service_exceptions import *
 from ..auth_service.auth_service import Auth_Service
+
 from ...models import User, Event, Attendee
 from ...forms import AttendeeForm, EventForm, GuestForm
 from ...util import get_data, Invalid_Form
@@ -67,6 +68,7 @@ class Event_Service:
         
     def delete_event_by_id(self, event_id: int) -> None:
         # TODO: email participants
+
         event = self.get_event_by_id(event_id)
         event.delete()
         
@@ -90,6 +92,9 @@ class Event_Service:
     
     def get_user_attendees(self, user: User) -> QuerySet:
         return user.attendees.all()
+    
+    def get_event_attendees(self, event: Event) -> QuerySet:
+        return event.attendees.all()
     
     def __validate_pax(self, user: User, event: Event, pax: int) -> None:
         attendee = self.get_attendee(user, event)
@@ -133,6 +138,7 @@ class Event_Service:
         return attendee
     
     def delete_attendee(self, user: User, event: Event) -> None:
+        # TODO: email participants
         auth_service = self.__auth_service
         if auth_service.is_anonymous_user(user):
             raise Invalid_User_Type("Must be authenticated or guest user")
@@ -142,6 +148,7 @@ class Event_Service:
         attendee.delete()
 
     def delete_attendee_by_id(self, attendee_id: int) -> None:
+        # TODO: email participants
         attendee = self.get_attendee_by_id(attendee_id)
         attendee.delete()
 

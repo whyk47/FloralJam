@@ -1,9 +1,8 @@
 from django.core.mail import send_mail
 from django.template.loader import get_template
-from django.urls import reverse
-from multiprocessing import Process
 
 from ...models import Attendee, EmailConfirmationToken, User
+from ...util import url
 
 from ..email_service.email_service_exceptions import *
 
@@ -43,19 +42,17 @@ class Email_Service:
         if user.num_valid_tokens() > 2:
             raise Too_Many_Attempts("You have exceeded the maximum number of email requests. Please try again later.")
         token = self.__new_token(user)
-        url = host + reverse(f'floral_jamming:{page}', args=[user.id, token.id])
         message = self.__render_email_template('verification_email', {
-            'url': url,
-            'user': user
+            'url': url(host, page, [user.id, token.id]),
+            'user': user,
+            'token': token
             })
-        try:
-            self.__send_email(
-                user=user,
-                subject=f'Floral Jamming - {"Reset Password" if user.is_email_verified else "Verify Email"}',
-                html_message=message,
-            )
-        except Exception as e:
-            raise UNABLE_TO_SEND_EMAIL(f"Failed to send email: {e}")
+        self.__send_email(
+            user=user,
+            subject=f'Floral Jamming - {"Reset Password" if user.is_email_verified else "Verify Email"}',
+            html_message=message,
+        )        
+    
     
     def verify_email_token(self, user: User, token: EmailConfirmationToken) -> None:
         if token.is_expired():
@@ -65,9 +62,8 @@ class Email_Service:
             raise Invalid_Token("The token does not belong to the requested user")
         
     def send_confirmation_email(self, attendee: Attendee, host: str) -> None:
-        url = host + reverse("floral_jamming:details", args=[attendee.event.id])
         message = self.__render_email_template('confirmation_email', {
-            'url': url,
+            'url': url(host, 'details', [attendee.event.id]),
             'attendee': attendee,
             }) 
         self.__send_email(
@@ -75,3 +71,15 @@ class Email_Service:
             subject='Floral Jamming - Event Confirmation',
             html_message=message,
             )
+    
+    def send_unregistration_email(self, attendee: Attendee, host: str) -> None:
+        message = self.__render_email_template('unregistration_email', {
+            'url': url(host, 'details', [attendee.event.id]),
+            'attendee': attendee,
+        })
+        self.__send_email(
+            user=attendee.user,
+            subject='Floral Jamming - Unregistered from Event',
+            html_message=message,
+        )
+
