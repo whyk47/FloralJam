@@ -83,3 +83,13 @@ class Email_Service:
             html_message=message,
         )
 
+    def send_event_cancellation_email(self, attendee: Attendee, host: str) -> None:
+        message = self.__render_email_template('event_cancellation_email', {
+            'attendee': attendee,
+        })
+        self.__send_email(
+            user=attendee.user,
+            subject='Floral Jamming - Event Cancellation',
+            html_message=message,
+        )
+

@@ -70,7 +70,7 @@ def sign_up(request: HttpRequest, event_id: int) -> HttpResponse | HttpResponseR
                          return HttpResponseRedirect(reverse("floral_jamming:verify_email", args=[request.user.id, "email_verified", event_id]))
                     else:
                          email_serivce.send_confirmation_email(attendee, request.get_host())
-               except (Invalid_Form, UNABLE_TO_SEND_EMAIL) as e:
+               except Invalid_Form as e:
                     return render(request, 'floral_jamming/auth/sign_up.html', {
                          'attendee': attendee,
                          'event': event,
@@ -111,7 +111,7 @@ def delete_event(request: HttpRequest, event_id: int) -> HttpResponseRedirect:
      if request.method == "POST":
           event = event_service.get_event_by_id(event_id)
           for attendee in event_service.get_event_attendees(event):
-               email_serivce.send_unregistration_email(attendee, request.get_host())
+               email_serivce.send_event_cancellation_email(attendee, request.get_host())
           event_service.delete_event_by_id(event_id)
           return HttpResponseRedirect(reverse("floral_jamming:index"))
      raise Invalid_Http_Request('Deletion must be done by POST request')

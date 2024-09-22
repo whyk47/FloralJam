@@ -1,0 +1,23 @@
+{% load templates %}
+
+{% with attendee.event as event %}
+    <p>Hi {{ attendee.user.first_name }},</p>
+
+    <p>
+        We regret to inform you that the event {{ event.title }}, scheduled to take place on {{ event.time }}, has been cancelled.
+    </p>
+
+    <p>
+        We understand how disappointing this news is and sincerely apologize for any inconvenience this may cause. 
+        All ticket holders will receive a full refund, which will be processed within 7 business days. 
+        You will receive a confirmation email once your refund has been processed.
+    </p>
+
+    <p>
+        If you have any questions or require further assistance, please don't hesitate to contact us via phone 
+        <span>&#40;</span>97472465<span>&#41;</span> 
+        or email 
+        <span>&#40;</span>hannahflowersg@gmail.com<span>&#41;</span>. 
+        We truly appreciate your understanding and hope to welcome you to future events.
+    </p>
+{% endwith %}

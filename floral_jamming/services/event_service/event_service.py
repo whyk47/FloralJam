@@ -67,8 +67,6 @@ class Event_Service:
             raise Event_Does_Not_Exist()
         
     def delete_event_by_id(self, event_id: int) -> None:
-        # TODO: email participants
-
         event = self.get_event_by_id(event_id)
         event.delete()
         
@@ -138,7 +136,6 @@ class Event_Service:
         return attendee
     
     def delete_attendee(self, user: User, event: Event) -> None:
-        # TODO: email participants
         auth_service = self.__auth_service
         if auth_service.is_anonymous_user(user):
             raise Invalid_User_Type("Must be authenticated or guest user")
@@ -148,7 +145,6 @@ class Event_Service:
         attendee.delete()
 
     def delete_attendee_by_id(self, attendee_id: int) -> None:
-        # TODO: email participants
         attendee = self.get_attendee_by_id(attendee_id)
         attendee.delete()
 
