@@ -4,12 +4,14 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y ca-certificates
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 EXPOSE 8080
+
+RUN python manage.py makemigrations floral_jamming
+
+RUN python manage.py migrate
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
