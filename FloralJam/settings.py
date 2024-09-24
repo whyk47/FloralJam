@@ -89,9 +89,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'floraljam',
-        'USER': 'admin',
-        'PASSWORD': 'PAPju83F5y3Ek7fjF47f',
-        'HOST': 'floraljam.c1446ykc0nzf.ap-southeast-1.rds.amazonaws.com',
+        'USER': os.getenv('RDS_USERNAME'),
+        'PASSWORD': os.getenv('RDS_PW'),
+        'HOST': os.getenv('RDS_ENDPOINT'),
         'PORT': 3306,
     }
 }
