@@ -22,6 +22,7 @@ class Event(models.Model):
     description = models.CharField(max_length=3000)
     capacity = models.IntegerField(validators=[MinValueValidator(0)])
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
+    # TODO: Add image
 
     def num_attendees(self) -> int:
         return sum([attendee.pax for attendee in self.attendees.filter(is_email_verified=True)])
@@ -34,6 +35,7 @@ class Attendee(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
     pax = models.IntegerField(validators=[MinValueValidator(1)])
     is_email_verified = models.BooleanField(default=False)
+    # TODO: Add paid status
 
 class EmailConfirmationToken(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
