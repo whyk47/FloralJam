@@ -7,17 +7,17 @@ jobs:
   Build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
-      RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-      RDS_PW: ${{ secrets.RDS_PW }}
-      EMAIL_ID: ${{ secrets.EMAIL_ID }}
-      EMAIL_PW: ${{ secrets.EMAIL_PW }}
-      MYSQL_ROOT_PW: ${{ secrets.MYSQL_ROOT_PW }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Create .env file
+        run: |
+          echo "RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }}" >> .env
+          echo "RDS_USERNAME=${{ secrets.RDS_USERNAME }}" >> .env
+          echo "RDS_PW=${{ secrets.RDS_PW }}" >> .env
+          echo "EMAIL_ID=${{ secrets.EMAIL_ID }}" >> .env
+          echo "EMAIL_PW=${{ secrets.EMAIL_PW }}" >> .env
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
