@@ -16,6 +16,11 @@ from dotenv import load_dotenv, dotenv_values
 
 load_dotenv()
 
+print("DB Name:", os.getenv('RDS_DB'))
+print("DB User:", os.getenv('RDS_USERNAME'))
+print("DB Host:", os.getenv('RDS_ENDPOINT'))
+print("DB Port:", os.getenv('RDS_PORT'))
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
