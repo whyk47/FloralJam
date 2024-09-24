@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
-      RDS_DB: ${{ secrets.RDS_DB }}
       RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
       RDS_PW: ${{ secrets.RDS_PW }}
-      RDS_PORT: ${{ secrets.RDS_PORT }}
+      EMAIL_ID: ${{ secrets.EMAIL_ID }}
+      EMAIL_PW: ${{ secrets.EMAIL_PW }}
 
     steps:
       - name: Checkout
