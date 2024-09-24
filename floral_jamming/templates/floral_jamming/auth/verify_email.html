@@ -19,7 +19,7 @@
 
         <div class="d-flex justify-content-center">
             
-            {% include 'floral_jamming/components/button.html' with button_label="Resend Email" button_colour="primary" %}
+            {% include 'floral_jamming/components/button.html' with button_label="Resend Email" button_colour="primary" margin="mr-1 my-2"%}
 
             {% if not user|is_guest_user %}
                 {% url "floral_jamming:login" event_id as btn_url %}

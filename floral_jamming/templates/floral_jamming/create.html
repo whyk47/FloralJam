@@ -16,8 +16,15 @@
     {% endif %} 
     {% include 'floral_jamming/components/form.html' with button_label="Save Event" %}
 
-    {% url 'floral_jamming:delete_event' event.id as btn_url %}
-    {% include 'floral_jamming/components/button.html' with button_label="Delete Event" button_colour="danger"%}
+    {% with button_colour="danger" margin="my-0" %}
+        {% if event %}
+            {% url 'floral_jamming:delete_event' event.id as btn_url %}
+            {% include 'floral_jamming/components/button.html' with button_label="Delete Event" %}
+        {% else %}
+            {% url 'floral_jamming:index' as btn_url %}
+            {% include 'floral_jamming/components/link_btn.html' with button_label="Cancel"%}
+        {% endif %}
+    {% endwith %}
 {% endblock %} 
 
 {% block script %}

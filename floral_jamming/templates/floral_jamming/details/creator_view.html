@@ -3,14 +3,18 @@
 {% url 'floral_jamming:create' event.id as btn_url %}
 {% include 'floral_jamming/components/link_btn.html' with button_label="Edit Event" button_colour="secondary" %}
 
-<h3>Attendees:</h3>
+<h3 class="my-3">Attendees:</h3>
 <div>
     {% for attendee in page %}
-        <div class="card p-2">
-            <div class="card-title">{{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)</div>
-            <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
-            {% url 'floral_jamming:remove_attendee' attendee.id as btn_url %}
-            {% include 'floral_jamming/components/button.html' with button_label="Remove" button_colour="danger" %}
+        <div class="card my-1">
+            <div class="card-body p-2">
+                <h5 class="card-title text-dark">
+                    {{ attendee.user.first_name }} {{ attendee.user.last_name }} ({{ attendee.pax }} pax)
+                </h5>
+                <a class="card-text" href="mailto: {{ attendee.user.email }}">{{ attendee.user.email }}</a> 
+                {% url 'floral_jamming:remove_attendee' attendee.id as btn_url %}
+                {% include 'floral_jamming/components/button.html' with button_label="Remove" button_colour="danger" %}
+            </div>
         </div>
     {% empty %}
         <h5>No Attendees Yet</h5>

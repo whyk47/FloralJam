@@ -1,5 +1,5 @@
 {% load templates %}
 
 <a href="{{ btn_url }}">
-    <button class="btn btn-{{ button_colour|default:'success' }} my-2 mx-1">{{ button_label }}</button>
+    <button class="btn btn-{{ button_colour|default:'success' }} {{ margin|default:'my-2'}}">{{ button_label }}</button>
 </a> 

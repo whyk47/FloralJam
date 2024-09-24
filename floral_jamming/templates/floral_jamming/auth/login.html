@@ -5,9 +5,11 @@
 {% include "floral_jamming/components/form.html" with title="Login" button_label="Login" %}
 
 <div>
-    Don't have an account? 
-    <a href="{% url 'floral_jamming:register' event_id %}">Register here.</a>
+    <div>
+        Don't have an account? 
+        <a href="{% url 'floral_jamming:register' event_id %}">Register here.</a>
+    </div>
+    <a href="{% url 'floral_jamming:forgot_password' %}">I forgot my password.</a>
 </div>
-<a href="{% url 'floral_jamming:forgot_password' %}">I forgot my password.</a>
 
 {% endblock %}

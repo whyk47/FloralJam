@@ -2,7 +2,7 @@
 
 <form action="{{ btn_url }}" method="post">
     {% csrf_token %}
-    <button type="submit" class="btn btn-{{ button_colour|default:'success' }} my-2 mx-1">
+    <button type="submit" class="btn btn-{{ button_colour|default:'success' }} {{ margin|default:'my-2'}}">
         {{ button_label|default:"Submit"}}
     </button>
 </form>
