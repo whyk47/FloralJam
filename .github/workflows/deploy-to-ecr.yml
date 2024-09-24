@@ -7,6 +7,13 @@ jobs:
   Build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
+      RDS_DB: ${{ secrets.RDS_DB }}
+      RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+      RDS_PW: ${{ secrets.RDS_PW }}
+      RDS_PORT: ${{ secrets.RDS_PORT }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
