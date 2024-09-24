@@ -13,6 +13,7 @@ jobs:
       RDS_PW: ${{ secrets.RDS_PW }}
       EMAIL_ID: ${{ secrets.EMAIL_ID }}
       EMAIL_PW: ${{ secrets.EMAIL_PW }}
+      MYSQL_ROOT_PW: ${{ secrets.MYSQL_ROOT_PW }}
 
     steps:
       - name: Checkout
