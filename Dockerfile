@@ -11,20 +11,20 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY .env .
-RUN export $(cat /app/.env | xargs)
+# COPY .env .
+# RUN export $(cat /app/.env | xargs)
 
-ARG RDS_ENDPOINT \
-    RDS_USERNAME \
-    RDS_PW \
-    EMAIL_ID \
-    EMAIL_PW 
+# ARG RDS_ENDPOINT \
+#     RDS_USERNAME \
+#     RDS_PW \
+#     EMAIL_ID \
+#     EMAIL_PW 
 
-ENV RDS_ENDPOINT=${RDS_ENDPOINT} \
-    RDS_USERNAME=${RDS_USERNAME} \
-    RDS_PW=${RDS_PW} \
-    EMAIL_ID=${EMAIL_ID} \
-    EMAIL_PW=${EMAIL_PW} 
+# ENV RDS_ENDPOINT=${RDS_ENDPOINT} \
+#     RDS_USERNAME=${RDS_USERNAME} \
+#     RDS_PW=${RDS_PW} \
+#     EMAIL_ID=${EMAIL_ID} \
+#     EMAIL_PW=${EMAIL_PW} 
 
 EXPOSE 8080
 
