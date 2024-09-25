@@ -13,11 +13,13 @@ jobs:
 
       - name: Create .env file
         run: |
+          touch .env
           echo "RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }}" >> .env
           echo "RDS_USERNAME=${{ secrets.RDS_USERNAME }}" >> .env
           echo "RDS_PW=${{ secrets.RDS_PW }}" >> .env
           echo "EMAIL_ID=${{ secrets.EMAIL_ID }}" >> .env
           echo "EMAIL_PW=${{ secrets.EMAIL_PW }}" >> .env
+          cat .env
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
