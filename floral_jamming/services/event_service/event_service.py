@@ -135,6 +135,10 @@ class Event_Service:
                 })
         return attendee
     
+    def update_payment(self, attendee: Attendee, paid: bool) -> None:
+        attendee.paid = paid
+        attendee.save()
+    
     def delete_attendee(self, user: User, event: Event) -> None:
         auth_service = self.__auth_service
         if auth_service.is_anonymous_user(user):

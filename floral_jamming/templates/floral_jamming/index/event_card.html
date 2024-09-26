@@ -6,7 +6,7 @@
             <h3 class="card-title text-dark">{{ event.title }}</h3>
         </a>
         <div class="card-text">
-            <div>{{ event.time }}</div>  
+            <div>{{ event.time|formatdate }}</div>  
             <div>
             {% if user|is_staff_user %}
                 <div>Participants: {{ event.num_attendees }}/{{ event.capacity }}</div>

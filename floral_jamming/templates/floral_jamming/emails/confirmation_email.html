@@ -13,7 +13,7 @@
         Below are the details of your registration:
             <ul>
                 <li>Event Name: {{ event.title }}</li>
-                <li>Date and Time: {{ event.time }}</li>
+                <li>Date and Time: {{ event.time|formatdate }}</li>
                 <li>Venue: {{ event.location }}</li>
                 <li>Pax registered: {{ attendee.pax }}</li>
             </ul>

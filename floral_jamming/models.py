@@ -35,7 +35,7 @@ class Attendee(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendees")
     pax = models.IntegerField(validators=[MinValueValidator(1)])
     is_email_verified = models.BooleanField(default=False)
-    # TODO: Add paid status
+    paid = models.BooleanField(default=False)
 
 class EmailConfirmationToken(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)

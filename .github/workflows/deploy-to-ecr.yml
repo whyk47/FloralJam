@@ -11,6 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+        # * Insert New Secrets here
       - name: Create .env file
         run: |
           touch .env

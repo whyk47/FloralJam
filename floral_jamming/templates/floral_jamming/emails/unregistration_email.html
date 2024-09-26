@@ -4,11 +4,12 @@
     <p>Hi {{ attendee.user.first_name }},</p>
 
     <p>
-        We are sorry to see you go! This email is to confirm that you have been unregistered from {{ event.title }} on {{ event.time }}. 
+        We are sorry to see you go! This email is to confirm that you have been unregistered from {{ event.title }} on {{ event.time|formatdate }}. 
         Your profile has been removed from our event list, and you will no longer receive any related updates or notifications.
         If this was a mistake or you wish to rejoin our community in the future, you can always re-register with the link below:
     </p>
 
+    {% comment %} TODO: shorten url {% endcomment %}
     <p>{{ url }}</p>
 
     <p>

@@ -22,4 +22,5 @@ urlpatterns = [
     path("reset_password/<int:user_id>/<str:token_id>", views.reset_password, name="reset_password"),
     path("remove_attendee/<int:attendee_id>", views.remove_attendee, name="remove_attendee"),
     path("delete_event/<int:event_id>", views.delete_event, name="delete_event"),
+    path("update_payment/<int:attendee_id>/<int:paid>", views.update_payment, name="update_payment"),
 ]

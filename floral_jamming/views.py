@@ -107,6 +107,15 @@ def remove_attendee(request: HttpRequest, attendee_id: int) -> HttpResponseRedir
      raise Invalid_Http_Request('Deletion must be done by POST request')
 
 @staff_member_required
+def update_payment(request: HttpRequest, attendee_id: int, paid: int) -> HttpResponseRedirect:
+     if request.method == "POST":
+          attendee = event_service.get_attendee_by_id(attendee_id)
+          event_service.update_payment(attendee, bool(paid))
+          return HttpResponseRedirect(reverse("floral_jamming:details", args=[attendee.event.id]))
+     raise Invalid_Http_Request('Update must be done by POST request')
+
+
+@staff_member_required
 def delete_event(request: HttpRequest, event_id: int) -> HttpResponseRedirect:
      if request.method == "POST":
           event = event_service.get_event_by_id(event_id)

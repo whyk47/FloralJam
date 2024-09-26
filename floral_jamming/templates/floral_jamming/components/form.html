@@ -3,12 +3,12 @@
 <h2 class="mb-3">{{ title }}</h2>
 
 <div class="text-danger">{{ message|default:'' }}</div>
-<form action="{{ form_url }}" method="post" class="mb-2">
+<form action="{{ form_url }}" method="post" class="mb-1">
     {% csrf_token %}
     <div class="form-group px-1">
         {% for form in forms %}
             {% for field in form %}
-                <div class="form-row my-2">
+                <div class="form-row my-1">
                     {{ field }}
                 </div>
             {% endfor %}

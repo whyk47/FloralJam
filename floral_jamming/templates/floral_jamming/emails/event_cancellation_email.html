@@ -4,7 +4,7 @@
     <p>Hi {{ attendee.user.first_name }},</p>
 
     <p>
-        We regret to inform you that the event {{ event.title }}, scheduled to take place on {{ event.time }}, has been cancelled.
+        We regret to inform you that the event {{ event.title }}, scheduled to take place on {{ event.time|formatdate }}, has been cancelled.
     </p>
 
     <p>

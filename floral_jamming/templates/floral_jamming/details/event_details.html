@@ -2,7 +2,7 @@
 
 {% comment %} TODO: Improve styling {% endcomment %}
 <h1>{{ event.title }}</h1>
-<div>{{ event.time }}</div>
+<div>{{ event.time|formatdate }}</div>
 <div>{{ event.location }}</div>
 <div>${{ event.price }}</div>
 <div>{{ event.remaining_slots }}/{{ event.capacity }} slots left</div>

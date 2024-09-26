@@ -20,3 +20,7 @@ def multiply(x: int, y: int) -> int:
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
     return str(arg1) + str(arg2)
+
+@register.filter
+def formatdate(date):
+    return date.strftime("%a, %d %b %Y, %I:%M %p")
