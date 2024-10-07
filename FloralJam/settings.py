@@ -146,7 +146,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# Email setup
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -156,3 +156,18 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PW')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_ID')
 
 CSRF_TRUSTED_ORIGINS = ['https://*.ap-southeast-1.awsapprunner.com','https://*.127.0.0.1']
+
+# Celery settings
+# CELERY_BROKER_URL = os.getenv('REDIS_URL')
+# Celery Configuration Options
+CELERY_BROKER_URL = 'sqs://'
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'region': 'ap-southeast-1',
+    'queue_name_prefix': 'celery-',
+    'visibility_timeout': 3600,  # Timeout for processing tasks
+    'polling_interval': 10  # Polling interval in seconds
+}
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

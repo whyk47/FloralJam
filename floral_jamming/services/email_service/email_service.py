@@ -1,6 +1,8 @@
 from django.core.mail import send_mail
 from django.template.loader import get_template
 
+from celery import shared_task
+
 from ...models import Attendee, EmailConfirmationToken, User
 from ...util import url
 
@@ -24,15 +26,20 @@ class Email_Service:
     def delete_tokens(self, user: User) -> None:
         user.email_tokens.all().delete()
 
-    def __send_email(self, user: User, subject: str, html_message: str) -> None:
+    @staticmethod
+    @shared_task
+    def __send_email_task(email: str, subject: str, html_message: str) -> None:
         send_mail(
             subject=subject,
             message='',
             from_email=None,
-            recipient_list=[user.email],
+            recipient_list=[email],
             fail_silently=False,
             html_message=html_message
         )
+
+    def __send_email(self, user: User, subject: str, html_message: str) -> None:
+        Email_Service.__send_email_task.delay(user.email, subject, html_message)
         
     def __render_email_template(self, template: str, context: dict) -> str:
         email_template = get_template(f'floral_jamming/emails/{template}.html')

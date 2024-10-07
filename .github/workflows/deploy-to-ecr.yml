@@ -20,6 +20,10 @@ jobs:
           echo "RDS_PW=${{ secrets.RDS_PW }}" >> .env
           echo "EMAIL_ID=${{ secrets.EMAIL_ID }}" >> .env
           echo "EMAIL_PW=${{ secrets.EMAIL_PW }}" >> .env
+          echo "EMAIL_PW=${{ secrets.SQS_QUEUE_URL }}" >> .env
+          echo "EMAIL_PW=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+          echo "EMAIL_PW=${{ secrets.AWS_SECRET_KEY }}" >> .env
+
           cat .env
 
       - name: Configure AWS credentials
