@@ -5,12 +5,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY . .
+
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 RUN celery -A FloralJam worker -l INFO -P eventlet
-
-COPY . .
 
 EXPOSE 8080
 
