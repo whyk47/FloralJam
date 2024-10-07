@@ -13,7 +13,7 @@ aws_secret_key = os.environ.get("AWS_SECRET_KEY")
 
 app = Celery(
     'FloralJam',
-    broker_url=f"sqs://{aws_access_key}:{aws_secret_key}@",
+    broker_url=f"sqs://",
     broker_transport_options={
         "region": "ap-southeast-1",
         "predefined_queues": {
