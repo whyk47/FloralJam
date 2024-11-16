@@ -5,9 +5,9 @@ FloralJam is a Django web application for organising and booking Floral Jamming 
 Hosts can create and manage events and their participants. 
 While users can register for events and receive automatic email conformation.
 
-### Usage
-[Link to Website](https://jfpzcpymy7.ap-southeast-1.awsapprunner.com/)
 [Video Demo](https://youtu.be/Uqz5l15oKR4)
+
+~[Link to Website](https://jfpzcpymy7.ap-southeast-1.awsapprunner.com/)~ (Ceased hosting)
 
 ### Key Features
 - Automated email service using stmp email backend.
